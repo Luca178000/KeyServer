@@ -29,6 +29,7 @@ async function buildServer(options = {}) {
         if (!k.history) k.history = [];
         if (!k.createdAt) k.createdAt = new Date().toISOString();
         if (!Object.prototype.hasOwnProperty.call(k, 'lastUsedAt')) k.lastUsedAt = null;
+        if (!Object.prototype.hasOwnProperty.call(k, 'invalid')) k.invalid = false;
       });
     } catch (err) {
       keys = [];
@@ -60,6 +61,7 @@ async function buildServer(options = {}) {
       createdAt: now,
       lastUsedAt: null,
       history: [],
+      invalid: false,
     };
 
     keys.push(newKey);
@@ -116,6 +118,30 @@ async function buildServer(options = {}) {
       return { error: 'Key nicht gefunden' };
     }
     return keyEntry.history || [];
+  });
+
+  app.put('/keys/:id/invalidate', async (request, reply) => {
+    const id = parseInt(request.params.id, 10);
+    const keyEntry = keys.find((k) => k.id === id);
+    if (!keyEntry) {
+      reply.code(404);
+      return { error: 'Key nicht gefunden' };
+    }
+    keyEntry.invalid = true;
+    await saveData();
+    return keyEntry;
+  });
+
+  app.delete('/keys/:id', async (request, reply) => {
+    const id = parseInt(request.params.id, 10);
+    const index = keys.findIndex((k) => k.id === id);
+    if (index === -1) {
+      reply.code(404);
+      return { error: 'Key nicht gefunden' };
+    }
+    keys.splice(index, 1);
+    await saveData();
+    return { success: true };
   });
 
   return app;

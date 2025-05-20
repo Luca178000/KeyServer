@@ -4,10 +4,15 @@
   "description": "Simple Fastify-based REST API to manage Windows keys in memory.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "jest"
   },
   "dependencies": {
     "fastify": "^4.22.2",
     "@fastify/static": "^7.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.1"
   }
 }

@@ -4,7 +4,7 @@ Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwalte
 
 ## Installation
 
-1. Stelle sicher, dass Node.js (Version 14 oder höher) installiert ist.
+1. Stelle sicher, dass Node.js (Version 18 oder höher) installiert ist. Die Tests verwenden das Web-API `fetch`, das erst ab Node.js 18 ohne Zusatzmodule verfügbar ist.
 2. Abhängigkeiten installieren:
    ```bash
    npm install

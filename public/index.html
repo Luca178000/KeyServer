@@ -118,23 +118,51 @@
   </main>
 
   <script>
-    // Wechsel zwischen hellem und dunklem Design
-    document.getElementById('themeToggle').addEventListener('click', () => {
-      document.body.classList.toggle('dark');
+
+    /*
+     * Schaltet zwischen hellem und dunklem Design um. Die Auswahl
+     * wird in localStorage gesichert und beim Laden wiederhergestellt.
+     */
+    const themeToggle = document.getElementById('themeToggle');
+
+    function applyTheme(mode) {
+      document.body.classList.remove('light', 'dark');
+      if (mode) document.body.classList.add(mode);
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const current = document.body.classList.contains('dark') ? 'dark'
+        : document.body.classList.contains('light') ? 'light' : null;
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
     });
 
-    // Erstellt einen Button für die Key-Aktionen
-    function createActionButton(text, handler) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('theme');
+      if (saved) applyTheme(saved);
+    });
+
+    // Erstellt einen Symbol-Button für die Key-Aktionen
+    function createIconButton(icon, title, className, handler) {
+
       const btn = document.createElement('button');
-      btn.textContent = text;
+      btn.className = 'icon-button ' + className;
+      btn.textContent = icon;
+      btn.title = title;
       btn.addEventListener('click', handler);
       return btn;
     }
 
-    // Zeigt ein JSON-Objekt formatiert innerhalb einer Ergebnisbox an
+
+    // Zeigt ein JSON-Objekt übersichtlich in einer Ergebnisbox an
     function displayJson(id, obj) {
       const box = document.getElementById(id);
-      box.textContent = JSON.stringify(obj, null, 2);
+      box.innerHTML = '';
+      const pre = document.createElement('pre');
+      pre.textContent = JSON.stringify(obj, null, 2);
+      box.appendChild(pre);
+
     }
 
     // Stellt einen einzelnen Key mit Copy-Button dar
@@ -188,28 +216,28 @@
         const actions = document.createElement('div');
         actions.className = 'key-actions';
 
-        actions.appendChild(createActionButton('Benutzen', () => {
+        actions.appendChild(createIconButton('✔️', 'Benutzen', 'icon-button icon-use', () => {
           const assigned = prompt('Zugewiesen an?') || '';
           markKeyInUse(entry.id, assigned);
         }));
 
-        actions.appendChild(createActionButton('Freigeben', () => {
+        actions.appendChild(createIconButton('↩️', 'Freigeben', 'icon-button icon-release', () => {
           releaseKey(entry.id);
         }));
 
-        actions.appendChild(createActionButton('Ungültig', () => {
+        actions.appendChild(createIconButton('🚫', 'Ungültig', 'icon-button icon-invalidate', () => {
           invalidateKey(entry.id);
         }));
 
-        actions.appendChild(createActionButton('Löschen', () => {
+        actions.appendChild(createIconButton('🗑️', 'Löschen', 'icon-button icon-delete', () => {
           deleteKey(entry.id);
         }));
 
-        actions.appendChild(createActionButton('Kopieren', () => {
+        actions.appendChild(createIconButton('📋', 'Kopieren', 'icon-button icon-copy', () => {
           navigator.clipboard.writeText(entry.key).catch(() => {});
         }));
 
-        actions.appendChild(createActionButton('Historie', () => {
+        actions.appendChild(createIconButton('📜', 'Historie', 'icon-button icon-history', () => {
           showHistory(entry.id);
           document.querySelector('nav.tabs button[data-tab="history"]').click();
         }));

@@ -42,4 +42,12 @@ describe('Dashboard', () => {
     expect(res.payload).toContain('class="result-box"');
   });
 
+
+  test('nutzt Icon-Buttons', async () => {
+    const { app } = await createServer();
+    const res = await app.inject('/');
+    expect(res.payload).toContain('icon-button');
+  });
+
+
 });

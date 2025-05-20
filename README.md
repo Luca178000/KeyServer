@@ -27,6 +27,13 @@ nutzen.
 ### GET `/keys`
 Gibt eine Liste aller gespeicherten Keys zurück.
 
+Optionale Query-Parameter erlauben das Filtern der Ausgabe:
+
+- `inUse`: "true" oder "false" – gibt nur Keys zurück, die (nicht) in Benutzung sind
+- `assignedTo`: Name einer Person – gibt nur Keys zurück, die dieser Person zugewiesen sind
+
+Beide Parameter können kombiniert werden, z.B. `/keys?inUse=true&assignedTo=Max`.
+
 ### POST `/keys`
 Fügt einen neuen Key hinzu. Der Key wird im Request-Body als JSON übergeben:
 ```json

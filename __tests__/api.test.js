@@ -112,4 +112,37 @@ describe('Key Server API', () => {
     const file = JSON.parse(await fs.readFile(dbPath, 'utf8'));
     expect(file[0].invalid).toBe(true);
   });
+
+  test('GET /keys filters by query parameters', async () => {
+    const { app } = await createServer();
+
+    const one = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'A' } });
+    const two = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'B' } });
+    const three = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'C' } });
+
+    const k1 = JSON.parse(one.payload);
+    const k3 = JSON.parse(three.payload);
+
+    await app.inject({ method: 'PUT', url: `/keys/${k1.id}/inuse`, payload: { assignedTo: 'Alice' } });
+    await app.inject({ method: 'PUT', url: `/keys/${k3.id}/inuse`, payload: { assignedTo: 'Bob' } });
+
+    const all = JSON.parse((await app.inject('/keys')).payload);
+    expect(all).toHaveLength(3);
+
+    const inUse = JSON.parse((await app.inject('/keys?inUse=true')).payload);
+    expect(inUse).toHaveLength(2);
+    expect(inUse.map((k) => k.key).sort()).toEqual(['A', 'C']);
+
+    const assigned = JSON.parse((await app.inject('/keys?assignedTo=Alice')).payload);
+    expect(assigned).toHaveLength(1);
+    expect(assigned[0].key).toBe('A');
+
+    const combo = JSON.parse((await app.inject('/keys?inUse=true&assignedTo=Bob')).payload);
+    expect(combo).toHaveLength(1);
+    expect(combo[0].key).toBe('C');
+
+    const notInUse = JSON.parse((await app.inject('/keys?inUse=false')).payload);
+    expect(notInUse).toHaveLength(1);
+    expect(notInUse[0].key).toBe('B');
+  });
 });

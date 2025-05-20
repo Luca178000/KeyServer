@@ -23,6 +23,8 @@ nutzen. Dort werden nun zusätzlich Listen aller freien und aller aktuell
 benutzten Keys angezeigt. Diese Daten stammen aus den Endpunkten
 `/keys/free/list` und `/keys/active/list`.
 Das Layout verwendet nun eine eigene CSS-Datei `public/style.css`, die dem Dashboard ein moderneres Erscheinungsbild verleiht.
+Zusätzlich ist die Oberfläche in mehrere Tabs aufgeteilt. Jeder Tab blendet die zugehörigen Abschnitte ein oder aus. Die Listen freier und aktiver Keys werden in einem Grid (`key-list`) nebeneinander dargestellt.
+
 
 Ebenfalls im Dashboard vorhanden sind Filterfelder für die Gesamtübersicht.
 Mit einer Checkbox lassen sich nur aktuell benutzte Keys anzeigen. Über ein
@@ -86,6 +88,8 @@ Und f\xc3\bcr mehrere Keys:
 Damit lassen sich mehrere Keys in einem einzigen Request \u00fcbermitteln. Die
 Antwort enth\u00e4lt unabh\u00e4ngig vom Eingabeformat stets ein Array der erzeugten
 Key-Objekte.
+ 
+Bereits vorhandene Keys werden dabei ignoriert und nicht erneut gespeichert. F\u00fchrt die Liste nur Duplikate oder ung\u00fcltige Eintr\u00e4ge, antwortet der Server mit Statuscode `400`.
 
 ### GET `/keys/free`
 Liefert den ersten verfügbaren Key (ein Key mit `inUse=false` und `invalid=false`). Gibt einen 404-Statuscode zurück, wenn keiner verfügbar ist.

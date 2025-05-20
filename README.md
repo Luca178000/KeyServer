@@ -37,6 +37,11 @@ Neu hinzugekommen ist ein weiteres Formular **Key löschen**, das eine
 ID entgegennimmt und damit einen `DELETE`-Request auf `/keys/:id` ausführt.
 Das Ergebnis wird ebenfalls im Dashboard angezeigt.
 
+Ebenfalls verfügbar ist nun ein Formular **Key ungültig**, das eine ID annimmt
+und per Button einen `PUT`-Request auf `/keys/:id/invalidate` sendet. Dadurch
+wird der gewählte Key dauerhaft als unbrauchbar markiert. Die Serverantwort wird
+unter dem Formular dargestellt.
+
 
 ## REST-Endpunkte
 
@@ -99,6 +104,11 @@ Die Antwort enthält das aktualisierte Key-Objekt. Bei unbekannter ID wird ein 4
 
 ### PUT `/keys/:id/release`
 Setzt einen zuvor belegten Key wieder auf frei. `inUse` wird dabei auf `false` gesetzt und das Feld `assignedTo` geleert. In der History wird ein Eintrag mit der Aktion `release` und Zeitstempel gespeichert. Die Antwort enthält den aktualisierten Key.
+
+### PUT `/keys/:id/invalidate`
+Markiert einen bestehenden Key dauerhaft als ungültig. Ein so gekennzeichneter
+Eintrag wird von `/keys/free` ignoriert und kann nicht mehr genutzt werden. Die
+Antwort enthält das aktualisierte Key-Objekt mit dem Feld `invalid=true`.
 
 ### DELETE `/keys/:id`
 Entfernt einen Key dauerhaft aus der Datenbank. Bei Erfolg wird `{ success: true }` zurückgegeben. Ist die ID unbekannt, lautet der Statuscode `404`.

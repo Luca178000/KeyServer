@@ -144,12 +144,16 @@
     });
 
     // Erstellt einen Symbol-Button für die Key-Aktionen
-    function createIconButton(icon, title, className, handler) {
+    // title ist optional und liefert einen Tooltip sowie ein ARIA-Label
+    function createActionButton(icon, className, handler, title) {
 
       const btn = document.createElement('button');
       btn.className = 'icon-button ' + className;
       btn.textContent = icon;
-      btn.title = title;
+      if (title) {
+        btn.title = title;
+        btn.setAttribute('aria-label', title);
+      }
       btn.addEventListener('click', handler);
       return btn;
     }
@@ -216,31 +220,31 @@
         const actions = document.createElement('div');
         actions.className = 'key-actions';
 
-        actions.appendChild(createIconButton('✔️', 'Benutzen', 'icon-button icon-use', () => {
+        actions.appendChild(createActionButton('✔️', 'icon-use', () => {
           const assigned = prompt('Zugewiesen an?') || '';
           markKeyInUse(entry.id, assigned);
-        }));
+        }, 'Benutzen'));
 
-        actions.appendChild(createIconButton('↩️', 'Freigeben', 'icon-button icon-release', () => {
+        actions.appendChild(createActionButton('↩️', 'icon-release', () => {
           releaseKey(entry.id);
-        }));
+        }, 'Freigeben'));
 
-        actions.appendChild(createIconButton('🚫', 'Ungültig', 'icon-button icon-invalidate', () => {
+        actions.appendChild(createActionButton('🚫', 'icon-invalidate', () => {
           invalidateKey(entry.id);
-        }));
+        }, 'Ungültig'));
 
-        actions.appendChild(createIconButton('🗑️', 'Löschen', 'icon-button icon-delete', () => {
+        actions.appendChild(createActionButton('🗑️', 'icon-delete', () => {
           deleteKey(entry.id);
-        }));
+        }, 'Löschen'));
 
-        actions.appendChild(createIconButton('📋', 'Kopieren', 'icon-button icon-copy', () => {
+        actions.appendChild(createActionButton('📋', 'icon-copy', () => {
           navigator.clipboard.writeText(entry.key).catch(() => {});
-        }));
+        }, 'Kopieren'));
 
-        actions.appendChild(createIconButton('📜', 'Historie', 'icon-button icon-history', () => {
+        actions.appendChild(createActionButton('📜', 'icon-history', () => {
           showHistory(entry.id);
           document.querySelector('nav.tabs button[data-tab="history"]').click();
-        }));
+        }, 'Historie'));
 
         row.appendChild(actions);
         container.appendChild(row);

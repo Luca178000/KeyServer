@@ -4,16 +4,31 @@ Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwalte
 
 ## Installation
 
-1. Stelle sicher, dass Node.js (Version 18 oder höher) installiert ist. Die Tests verwenden das Web-API `fetch`, das erst ab Node.js 18 ohne Zusatzmodule verfügbar ist.
-2. Abhängigkeiten installieren:
+### Voraussetzungen
+
+- Node.js ab Version **18**
+- Git zum Klonen des Repositories
+
+### Erstinstallation
+
+1. Repository klonen und in das Verzeichnis wechseln:
+   ```bash
+   git clone <REPO-URL>
+   cd KeyServer
+   ```
+2. Benötigte Abhängigkeiten installieren:
    ```bash
    npm install
    ```
-3. Server starten:
+3. (Optional) Alle Tests einmal ausführen, um die Umgebung zu prüfen:
+   ```bash
+   npm test
+   ```
+4. Server starten:
    ```bash
    npm start
    ```
-   Der Server läuft anschließend auf Port **3000**.
+   Anschließend läuft der Server auf Port **3000** unter [http://localhost:3000](http://localhost:3000). Beim ersten Start wird automatisch eine Datei `db.json` angelegt, in der die Keys dauerhaft gespeichert werden.
 
 ## Dashboard
 
@@ -105,6 +120,9 @@ Gibt eine komplette Liste aller momentan freien Keys zurück. Die Antwort ist ei
 ### GET `/keys/active/list`
 Liefert alle Keys, die aktuell in Benutzung sind (`inUse=true`). Auch hier wird ein Array von Key-Objekten zurückgegeben.
 
+### GET `/keys/:id/history`
+Gibt die komplette Historie eines Keys zurück. Die Antwort ist ein Array mit Einträgen der Form `{ action, timestamp, assignedTo }`. Ist die ID unbekannt, antwortet der Server mit Statuscode `404`.
+
 ### PUT `/keys/:id/inuse`
 Markiert einen Key als in Benutzung. Die ID wird in der URL angegeben. Im Request-Body kann ein Feld `assignedTo` übergeben werden, um zu notieren, wer den Key verwendet:
 ```json
@@ -142,10 +160,14 @@ Dieses Projekt enthält keine Sicherheitsmechanismen, keine Authentifizierung un
 
 ## Tests
 
-Um sicherzustellen, dass alle Funktionen weiterhin korrekt arbeiten, existieren Jest-Tests im Verzeichnis __tests__. Die Ausführung inklusive Testabdeckung erfolgt mit:
+Um sicherzustellen, dass alle Funktionen weiterhin korrekt arbeiten, existieren Jest-Tests im Verzeichnis `__tests__`. Diese decken sämtliche REST-Endpunkte sowie das Dashboard ab. Die Ausführung inklusive Testabdeckung erfolgt mit:
 
 ```bash
 npm test
 ```
 
-Dabei werden sämtliche Tests gestartet und die Ergebnisse sowie die Coverage im Terminal ausgegeben.
+Dabei werden alle Tests gestartet und die Ergebnisse sowie die Coverage im Terminal ausgegeben. Der erzeugte Coverage-Bericht findet sich anschließend im Ordner `coverage`. Für die Entwicklung kann der Watch-Modus genutzt werden:
+```bash
+npm test -- --watch
+```
+So werden die Tests nach jeder Dateiänderung automatisch erneut ausgeführt.

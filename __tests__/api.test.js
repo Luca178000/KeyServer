@@ -309,4 +309,33 @@ describe('Key Server API', () => {
 
     await app.close();
   });
+
+  test('Dashboard deleteKey flow via fetch', async () => {
+    const { app } = await createServer();
+
+    // Server auf zuf\xC3\xA4lligem Port starten, um echte HTTP-Aufrufe zu simulieren
+    const address = await app.listen({ port: 0, host: '127.0.0.1' });
+    const port = app.server.address().port;
+
+    // Key anlegen, der anschlie\xC3\x9Fend gel\xC3\xB6scht werden soll
+    const create = await fetch(`http://127.0.0.1:${port}/keys`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'ZZZZZ-ZZZZZ-ZZZZZ-ZZZZZ-00001' })
+    });
+    const created = (await create.json())[0];
+
+    // L\xC3\xB6schen wie im Dashboard
+    const del = await fetch(`http://127.0.0.1:${port}/keys/${created.id}`, { method: 'DELETE' });
+    const data = await del.json();
+
+    expect(data.success).toBe(true);
+
+    // Sicherstellen, dass der Key wirklich entfernt wurde
+    const list = await fetch(`http://127.0.0.1:${port}/keys`);
+    const arr = await list.json();
+    expect(arr).toHaveLength(0);
+
+    await app.close();
+  });
 });

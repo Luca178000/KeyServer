@@ -69,6 +69,15 @@
   </section>
 
   <section>
+    <h2>Key l\xC3\xB6schen</h2>
+    <form id="deleteForm">
+      <input type="number" id="deleteId" placeholder="ID" required />
+      <button type="submit">L\xC3\xB6schen</button>
+    </form>
+    <pre id="deleteResult"></pre>
+  </section>
+
+  <section>
     <h2>Log</h2>
     <pre id="historyLog"></pre>
   </section>
@@ -176,6 +185,25 @@
       e.preventDefault();
       const id = document.getElementById('releaseId').value;
       await releaseKey(id);
+    });
+
+    // L\xC3\xB6scht einen Key permanent vom Server
+    async function deleteKey(id) {
+      const res = await fetch(`/keys/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      document.getElementById('deleteResult').textContent = JSON.stringify(data, null, 2);
+      updateStats();
+      loadFreeList();
+      loadActiveList();
+      // Nach dem L\xC3\xB6schen ist keine Historie mehr vorhanden
+      document.getElementById('historyLog').textContent = '';
+      return data;
+    }
+
+    document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('deleteId').value;
+      await deleteKey(id);
     });
 
     document.addEventListener('DOMContentLoaded', () => {

@@ -430,4 +430,37 @@ describe('Key Server API', () => {
 
     await app.close();
   });
+
+  // Tests für Endpunkte mit unbekannter ID
+  describe('Fehlerfälle', () => {
+    test('PUT /keys/999/inuse liefert 404', async () => {
+      const { app } = await createServer();
+      const res = await app.inject({ method: 'PUT', url: '/keys/999/inuse', payload: {} });
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('PUT /keys/999/release liefert 404', async () => {
+      const { app } = await createServer();
+      const res = await app.inject({ method: 'PUT', url: '/keys/999/release' });
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('PUT /keys/999/invalidate liefert 404', async () => {
+      const { app } = await createServer();
+      const res = await app.inject({ method: 'PUT', url: '/keys/999/invalidate' });
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('DELETE /keys/999 liefert 404', async () => {
+      const { app } = await createServer();
+      const res = await app.inject({ method: 'DELETE', url: '/keys/999' });
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('GET /keys/999/history liefert 404', async () => {
+      const { app } = await createServer();
+      const res = await app.inject('/keys/999/history');
+      expect(res.statusCode).toBe(404);
+    });
+  });
 });

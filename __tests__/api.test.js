@@ -145,4 +145,33 @@ describe('Key Server API', () => {
     expect(notInUse).toHaveLength(1);
     expect(notInUse[0].key).toBe('B');
   });
+
+  test('GET /keys/free/list returns only free keys', async () => {
+    const { app } = await createServer();
+    await app.inject({ method: 'POST', url: '/keys', payload: { key: 'A' } });
+    await app.inject({ method: 'POST', url: '/keys', payload: { key: 'B' } });
+    const first = JSON.parse((await app.inject('/keys/free')).payload);
+    await app.inject({ method: 'PUT', url: `/keys/${first.id}/inuse`, payload: {} });
+
+    const list = await app.inject('/keys/free/list');
+    expect(list.statusCode).toBe(200);
+    const arr = JSON.parse(list.payload);
+    expect(arr.every((k) => k.inUse === false)).toBe(true);
+    expect(arr).toHaveLength(1);
+  });
+
+  test('GET /keys/active/list returns only used keys', async () => {
+    const { app } = await createServer();
+    await app.inject({ method: 'POST', url: '/keys', payload: { key: 'A' } });
+    const b = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'B' } });
+    const bObj = JSON.parse(b.payload);
+    await app.inject({ method: 'PUT', url: `/keys/${bObj.id}/inuse`, payload: { assignedTo: 'Test' } });
+
+    const list = await app.inject('/keys/active/list');
+    expect(list.statusCode).toBe(200);
+    const arr = JSON.parse(list.payload);
+    expect(arr.every((k) => k.inUse === true)).toBe(true);
+    expect(arr).toHaveLength(1);
+    expect(arr[0].assignedTo).toBe('Test');
+  });
 });

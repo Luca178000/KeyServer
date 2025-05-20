@@ -25,6 +25,16 @@
   </section>
 
   <section>
+    <h2>Freie Keys</h2>
+    <pre id="listFree"></pre>
+  </section>
+
+  <section>
+    <h2>Aktive Keys</h2>
+    <pre id="listActive"></pre>
+  </section>
+
+  <section>
     <h2>Neuen Key hinzufügen</h2>
     <form id="addKeyForm">
       <input type="text" id="newKey" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" required />
@@ -64,6 +74,18 @@
       document.getElementById('usedCount').textContent = used;
     }
 
+    async function loadFreeList() {
+      const res = await fetch('/keys/free/list');
+      const data = await res.json();
+      document.getElementById('listFree').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function loadActiveList() {
+      const res = await fetch('/keys/active/list');
+      const data = await res.json();
+      document.getElementById('listActive').textContent = JSON.stringify(data, null, 2);
+    }
+
     async function showHistory(id) {
       if (!id) return;
       const res = await fetch(`/keys/${id}/history`);
@@ -76,6 +98,8 @@
       const data = await res.json();
       document.getElementById('allKeys').textContent = JSON.stringify(data, null, 2);
       updateStats();
+      loadFreeList();
+      loadActiveList();
     });
 
     document.getElementById('addKeyForm').addEventListener('submit', async (e) => {
@@ -89,6 +113,8 @@
       const data = await res.json();
       document.getElementById('addKeyResult').textContent = JSON.stringify(data, null, 2);
       updateStats();
+      loadFreeList();
+      loadActiveList();
       showHistory(data.id);
     });
 
@@ -97,6 +123,8 @@
       const data = await res.json();
       document.getElementById('freeKey').textContent = JSON.stringify(data, null, 2);
       updateStats();
+      loadFreeList();
+      loadActiveList();
       showHistory(data.id);
     });
 
@@ -112,10 +140,16 @@
       const data = await res.json();
       document.getElementById('inUseResult').textContent = JSON.stringify(data, null, 2);
       updateStats();
+      loadFreeList();
+      loadActiveList();
       showHistory(id);
     });
 
-    document.addEventListener('DOMContentLoaded', updateStats);
+    document.addEventListener('DOMContentLoaded', () => {
+      updateStats();
+      loadFreeList();
+      loadActiveList();
+    });
   </script>
 </body>
 </html>

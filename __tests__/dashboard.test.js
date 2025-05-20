@@ -49,5 +49,15 @@ describe('Dashboard', () => {
     expect(res.payload).toContain('icon-button');
   });
 
+  test('createActionButton setzt optionalen Titel', async () => {
+    const { app } = await createServer();
+    const res = await app.inject('/');
+    const { JSDOM } = require('../test-utils/fake-dom');
+    const dom = new JSDOM(res.payload, { runScripts: 'dangerously' });
+    const btn = dom.window.createActionButton('x', 'icon-test', () => {}, 'Titel');
+    expect(btn.getAttribute('title')).toBe('Titel');
+    expect(btn.getAttribute('aria-label')).toBe('Titel');
+  });
+
 
 });

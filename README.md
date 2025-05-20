@@ -23,6 +23,12 @@ nutzen. Dort werden nun zusätzlich Listen aller freien und aller aktuell
 benutzten Keys angezeigt. Diese Daten stammen aus den Endpunkten
 `/keys/free/list` und `/keys/active/list`.
 
+Ebenfalls im Dashboard vorhanden sind Filterfelder für die Gesamtübersicht.
+Mit einer Checkbox lassen sich nur aktuell benutzte Keys anzeigen. Über ein
+Textfeld kann zudem nach dem Wert des Feldes `assignedTo` gefiltert werden.
+Beim Klick auf **Laden** werden diese Angaben als Query-Parameter an den
+Endpunkt `/keys` angehängt und das Ergebnis direkt angezeigt.
+
 Außerdem steht ein Formular **Key freigeben** bereit. Mit Eingabe einer ID
 schickt es einen PUT-Request auf `/keys/:id/release`, markiert den Key damit als
 frei und zeigt die Antwort direkt unter dem Formular an.
@@ -43,6 +49,11 @@ Optionale Query-Parameter erlauben das Filtern der Ausgabe:
 - `assignedTo`: Name einer Person – gibt nur Keys zurück, die dieser Person zugewiesen sind
 
 Beide Parameter können kombiniert werden, z.B. `/keys?inUse=true&assignedTo=Max`.
+
+Beispiele für einzelne Filteraufrufe:
+
+- Nur benutzte Keys: `/keys?inUse=true`
+- Nach Name filtern: `/keys?assignedTo=Lisa`
 
 ### POST `/keys`
 Legt einen oder mehrere neue Keys an. Der Request-Body muss ein JSON-Objekt

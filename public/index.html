@@ -20,6 +20,8 @@
 
   <section>
     <h2>Alle Keys</h2>
+    <label><input type="checkbox" id="filterInUse" /> nur benutzte Keys</label>
+    <input type="text" id="filterAssignedTo" placeholder="Zugewiesen an" />
     <button id="loadKeys">Laden</button>
     <pre id="allKeys"></pre>
   </section>
@@ -112,7 +114,15 @@
     }
 
     document.getElementById('loadKeys').addEventListener('click', async () => {
-      const res = await fetch('/keys');
+      // Query-Parameter für die Filter zusammenstellen
+      const params = [];
+      const inUseChecked = document.getElementById('filterInUse').checked;
+      if (inUseChecked) params.push('inUse=true');
+      const assigned = document.getElementById('filterAssignedTo').value.trim();
+      if (assigned) params.push('assignedTo=' + encodeURIComponent(assigned));
+      const query = params.length ? '?' + params.join('&') : '';
+
+      const res = await fetch('/keys' + query);
       const data = await res.json();
       document.getElementById('allKeys').textContent = JSON.stringify(data, null, 2);
       updateStats();

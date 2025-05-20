@@ -338,4 +338,52 @@ describe('Key Server API', () => {
 
     await app.close();
   });
+
+  test('Dashboard filter list via query parameters', async () => {
+    const { app } = await createServer();
+
+    // Server starten, um HTTP-Aufrufe wie im Dashboard zu ermöglichen
+    const address = await app.listen({ port: 0, host: '127.0.0.1' });
+    const port = app.server.address().port;
+
+    // Zwei Keys anlegen und einen davon als benutzt markieren
+    const aRes = await fetch(`http://127.0.0.1:${port}/keys`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'AAAAA-AAAAA-AAAAA-AAAAA-00001' })
+    });
+    const a = (await aRes.json())[0];
+    const bRes = await fetch(`http://127.0.0.1:${port}/keys`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'BBBBB-BBBBB-BBBBB-BBBBB-00002' })
+    });
+    const b = (await bRes.json())[0];
+
+    await fetch(`http://127.0.0.1:${port}/keys/${a.id}/inuse`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assignedTo: 'Tester' })
+    });
+
+    // Filter nach benutzten Keys
+    const usedRes = await fetch(`http://127.0.0.1:${port}/keys?inUse=true`);
+    const used = await usedRes.json();
+    expect(used).toHaveLength(1);
+    expect(used[0].id).toBe(a.id);
+
+    // Filter nach Name
+    const nameRes = await fetch(`http://127.0.0.1:${port}/keys?assignedTo=Tester`);
+    const byName = await nameRes.json();
+    expect(byName).toHaveLength(1);
+    expect(byName[0].id).toBe(a.id);
+
+    // Beide Parameter kombiniert
+    const comboRes = await fetch(`http://127.0.0.1:${port}/keys?inUse=true&assignedTo=Tester`);
+    const combo = await comboRes.json();
+    expect(combo).toHaveLength(1);
+    expect(combo[0].id).toBe(a.id);
+
+    await app.close();
+  });
 });

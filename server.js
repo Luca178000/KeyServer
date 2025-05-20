@@ -85,7 +85,8 @@ async function buildServer(options = {}) {
   });
 
   app.get('/keys/free', async (request, reply) => {
-    const freeKey = keys.find((k) => !k.inUse);
+    // Suche nach dem ersten freien und zugleich nicht als ungültig markierten Key
+    const freeKey = keys.find((k) => !k.inUse && !k.invalid);
     if (!freeKey) {
       reply.code(404);
       return { error: 'Kein verfügbarer Key gefunden' };

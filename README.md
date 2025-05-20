@@ -42,7 +42,7 @@ Fügt einen neuen Key hinzu. Der Key wird im Request-Body als JSON übergeben:
 Antwort ist das neu erstellte Key-Objekt mit ID.
 
 ### GET `/keys/free`
-Liefert den ersten verfügbaren Key (also einen Key mit `inUse=false`). Gibt einen 404-Statuscode zurück, wenn keiner verfügbar ist.
+Liefert den ersten verfügbaren Key (ein Key mit `inUse=false` und `invalid=false`). Gibt einen 404-Statuscode zurück, wenn keiner verfügbar ist.
 
 ### PUT `/keys/:id/inuse`
 Markiert einen Key als in Benutzung. Die ID wird in der URL angegeben. Im Request-Body kann ein Feld `assignedTo` übergeben werden, um zu notieren, wer den Key verwendet:

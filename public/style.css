@@ -153,6 +153,27 @@ button {
   cursor: pointer;
   font-size: 1.1rem;
 }
+.icon-button[title] {
+  position: relative;
+}
+.icon-button[title]::after {
+  content: attr(title);
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -120%);
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.icon-button[title]:hover::after {
+  opacity: 1;
+}
 .icon-use { color: green; }
 .icon-release { color: orange; }
 .icon-invalidate { color: gray; }

@@ -26,6 +26,7 @@ Zu jedem Eintrag stehen Schaltflächen bereit, um den Key zu kopieren, zu lösch
 
 Neu ist ein Button oben rechts, der zwischen hellem und dunklem Design umschaltet. Die Auswahl wird im Browser gespeichert, sodass das bevorzugte Design bei einem erneuten Besuch direkt aktiv ist. Die Farben werden weiterhin über CSS-Variablen angepasst.
 Die Aktionsknöpfe in den Key-Listen werden nun als farbige Symbole dargestellt, was die Bedienung vereinfacht.
+Beim Überfahren der Symbole erscheint ein kurzer Hinweis, der die jeweilige Aktion beschreibt.
 
 Antworten des Servers erscheinen in kleinen Ergebnisboxen direkt unter den Formularen. Beim Abrufen eines freien Keys wird zusätzlich ein Kopieren-Button angeboten.
 

@@ -1,6 +1,13 @@
 const vm = require('vm');
 
+/**
+ * Sehr einfaches DOM-Element f\u00fcr die Tests.
+ * Stellt nur die Eigenschaften bereit, die in den Skripten genutzt werden.
+ */
 class Element {
+  /**
+   * Legt ein Element mit dem gegebenen Tag an.
+   */
   constructor(tag) {
     this.tagName = tag.toUpperCase();
     this.attributes = {};
@@ -10,21 +17,42 @@ class Element {
     this.title = '';
     this.children = [];
   }
+
+  /**
+   * Hinterlegt ein Attribut am Element.
+   */
   setAttribute(name, value) { this.attributes[name] = value; }
+
+  /**
+   * Liefert den gespeicherten Attributwert zur\u00fcck.
+   */
   getAttribute(name) { return this.attributes[name] ?? this[name]; }
+
+  /**
+   * F\u00fcgt ein Kindelement hinzu.
+   */
   appendChild(child) { this.children.push(child); }
+
+  /**
+   * Platzhalter f\u00fcr Event-Listener, wird in den Tests nicht ben\u00f6tigt.
+   */
   addEventListener() {}
 }
 
+/**
+ * Minimaler Ersatz f\u00fcr `document` im Browser.
+ */
 class Document {
+  /**
+   * Initialisiert die interne Sammlung f\u00fcr Elemente mit IDs.
+   */
   constructor() {
     this.nodes = {};
   }
 
   /**
    * Erzeugt ein neues Element des angegebenen Typs.
-   * In dieser sehr einfachen DOM-Implementierung werden nur wenige
-   * Eigenschaften unterst\u00fctzt.
+   * Unterst\u00fctzt nur die Funktionen, die f\u00fcr die Tests erforderlich sind.
    */
   createElement(tag) {
     return new Element(tag);
@@ -40,22 +68,34 @@ class Document {
   }
 
   /**
-   * Vereinfache Auswahl von Elementen per CSS-Selektor.
-   * F\u00fcr die Tests reicht es aus, ein Objekt mit einer leeren click-Methode
-   * zur\u00fcckzugeben.
+   * Vereinfacht die Auswahl per CSS-Selektor.
+   * Gibt f\u00fcr die Tests lediglich ein Objekt mit leerer click-Methode zur\u00fcck.
    */
   querySelector() {
     return { click() {} };
   }
 
+  /**
+   * Gibt immer eine leere Liste zur\u00fcck, da komplexe Selektoren nicht ben\u00f6tigt werden.
+   */
   querySelectorAll() {
     return [];
   }
 
+  /**
+   * Platzhalter f\u00fcr addEventListener, derzeit ohne Funktion.
+   */
   addEventListener() {}
 }
 
+/**
+ * Stellt eine minimale DOM-Umgebung zur Verf\u00fcgung,
+ * damit im Test HTML und Skripte ausgef\u00fchrt werden k\u00f6nnen.
+ */
 class JSDOM {
+  /**
+   * Erstellt die Umgebung und f\u00fchrt optional enthaltene Skripte aus.
+   */
   constructor(html, options = {}) {
     // Minimale Objekte f\u00fcr globale Funktionen im Browser
     this.window = {

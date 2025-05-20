@@ -136,6 +136,30 @@ describe('Key Server API', () => {
     expect(none.statusCode).toBe(404);
   });
 
+  test('PUT /keys/:id/release resets state and logs history', async () => {
+    const { app, dbPath } = await createServer();
+
+    const res = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'REL' } });
+    const created = JSON.parse(res.payload);
+
+    await app.inject({ method: 'PUT', url: `/keys/${created.id}/inuse`, payload: { assignedTo: 'Tester' } });
+
+    const rel = await app.inject({ method: 'PUT', url: `/keys/${created.id}/release` });
+    expect(rel.statusCode).toBe(200);
+    const updated = JSON.parse(rel.payload);
+    expect(updated.inUse).toBe(false);
+    expect(updated.assignedTo).toBeNull();
+    expect(updated.history).toHaveLength(2);
+    expect(updated.history[1].action).toBe('release');
+
+    const data = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    const stored = data.find((k) => k.id === created.id);
+    expect(stored.inUse).toBe(false);
+    expect(stored.assignedTo).toBeNull();
+    expect(stored.history).toHaveLength(2);
+    expect(stored.history[1].action).toBe('release');
+  });
+
   test('GET /keys filters by query parameters', async () => {
     const { app } = await createServer();
 

@@ -51,6 +51,11 @@ Markiert einen Key als in Benutzung. Die ID wird in der URL angegeben. Im Reques
 ```
 Die Antwort enthält das aktualisierte Key-Objekt. Bei unbekannter ID wird ein 404-Statuscode zurückgegeben.
 
+### PUT `/keys/:id/release`
+Setzt einen zuvor vergebenen Key wieder auf frei. Dabei wird `inUse` auf `false`
+gesetzt und `assignedTo` geleert. Es wird zudem ein Historie-Eintrag mit der
+Aktion `release` inklusive Zeitstempel angelegt.
+
 ## Datenstruktur
 
 Die Daten werden in der Datei `db.json` gespeichert und sehen wie folgt aus:

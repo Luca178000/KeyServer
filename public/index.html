@@ -71,6 +71,15 @@
   </section>
 
   <section>
+    <h2>Key ungültig markieren</h2>
+    <form id="invalidateForm">
+      <input type="number" id="invalidateId" placeholder="ID" required />
+      <button type="submit">Key ungültig</button>
+    </form>
+    <pre id="invalidateResult"></pre>
+  </section>
+
+  <section>
     <h2>Key l\xC3\xB6schen</h2>
     <form id="deleteForm">
       <input type="number" id="deleteId" placeholder="ID" required />
@@ -195,6 +204,24 @@
       e.preventDefault();
       const id = document.getElementById('releaseId').value;
       await releaseKey(id);
+    });
+
+    // Markiert einen Key als ungültig
+    async function invalidateKey(id) {
+      const res = await fetch(`/keys/${id}/invalidate`, { method: 'PUT' });
+      const data = await res.json();
+      document.getElementById('invalidateResult').textContent = JSON.stringify(data, null, 2);
+      updateStats();
+      loadFreeList();
+      loadActiveList();
+      showHistory(id);
+      return data;
+    }
+
+    document.getElementById('invalidateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('invalidateId').value;
+      await invalidateKey(id);
     });
 
     // L\xC3\xB6scht einen Key permanent vom Server

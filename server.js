@@ -196,6 +196,8 @@ async function buildServer(options = {}) {
     return keyEntry.history || [];
   });
 
+  // Markiert einen Key dauerhaft als ungültig
+  // Im Dashboard wird dieser Endpunkt über den Button "Key ungültig" aufgerufen
   app.put('/keys/:id/invalidate', async (request, reply) => {
     const id = parseInt(request.params.id, 10);
     const keyEntry = keys.find((k) => k.id === id);
@@ -203,6 +205,7 @@ async function buildServer(options = {}) {
       reply.code(404);
       return { error: 'Key nicht gefunden' };
     }
+    // Flag setzen, damit dieser Key künftig nicht mehr verwendet wird
     keyEntry.invalid = true;
     await saveData();
     return keyEntry;

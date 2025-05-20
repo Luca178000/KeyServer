@@ -1,0 +1,12 @@
+{
+  "name": "keyserver",
+  "version": "1.0.0",
+  "description": "Simple Fastify-based REST API to manage Windows keys in memory.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "fastify": "^4.22.2"
+  }
+}

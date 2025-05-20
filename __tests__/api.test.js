@@ -22,15 +22,19 @@ describe('Key Server API', () => {
     expect(res.statusCode).toBe(201);
     const created = JSON.parse(res.payload);
     expect(created).toMatchObject({ key: 'AAAAA-BBBBB-CCCCC-DDDDD', inUse: false });
+    expect(created.createdAt).toBeDefined();
+    expect(created.lastUsedAt).toBeNull();
+    expect(created.history).toEqual([]);
 
     const file = await fs.readFile(dbPath, 'utf8');
     const content = JSON.parse(file);
     expect(content).toHaveLength(1);
     expect(content[0].key).toBe('AAAAA-BBBBB-CCCCC-DDDDD');
+    expect(content[0].history).toEqual([]);
   });
 
   test('GET /keys/free and PUT /keys/:id/inuse', async () => {
-    const { app } = await createServer();
+    const { app, dbPath } = await createServer();
     await app.inject({ method: 'POST', url: '/keys', payload: { key: 'KEY-ONE' } });
     await app.inject({ method: 'POST', url: '/keys', payload: { key: 'KEY-TWO' } });
 
@@ -38,6 +42,8 @@ describe('Key Server API', () => {
     expect(freeRes.statusCode).toBe(200);
     const freeKey = JSON.parse(freeRes.payload);
     expect(freeKey.key).toBe('KEY-ONE');
+    expect(freeKey.history).toHaveLength(1);
+    expect(freeKey.history[0].action).toBe('free');
 
     const mark = await app.inject({
       method: 'PUT',
@@ -48,6 +54,12 @@ describe('Key Server API', () => {
     const updated = JSON.parse(mark.payload);
     expect(updated.inUse).toBe(true);
     expect(updated.assignedTo).toBe('Max');
+    expect(updated.history).toHaveLength(2);
+    expect(updated.history[1]).toMatchObject({ action: 'inuse', assignedTo: 'Max' });
+
+    const histRes = await app.inject(`/keys/${freeKey.id}/history`);
+    const hist = JSON.parse(histRes.payload);
+    expect(hist).toHaveLength(2);
 
     const nextFree = await app.inject('/keys/free');
     const next = JSON.parse(nextFree.payload);
@@ -56,6 +68,10 @@ describe('Key Server API', () => {
     await app.inject({ method: 'PUT', url: `/keys/${next.id}/inuse`, payload: {} });
     const none = await app.inject('/keys/free');
     expect(none.statusCode).toBe(404);
+
+    const persisted = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    const stored = persisted.find((k) => k.id === freeKey.id);
+    expect(stored.history).toHaveLength(2);
   });
 
   test('POST /keys without key returns 400', async () => {

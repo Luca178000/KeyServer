@@ -142,6 +142,26 @@ async function buildServer(options = {}) {
     return keyEntry;
   });
 
+  // Setzt einen Key wieder auf "frei" und entfernt die Zuweisung
+  app.put('/keys/:id/release', async (request, reply) => {
+    const id = parseInt(request.params.id, 10);
+    const keyEntry = keys.find((k) => k.id === id);
+
+    if (!keyEntry) {
+      reply.code(404);
+      return { error: 'Key nicht gefunden' };
+    }
+
+    // Flag zur Nutzung entfernen und Zuweisung zurücksetzen
+    keyEntry.inUse = false;
+    keyEntry.assignedTo = null;
+    if (!keyEntry.history) keyEntry.history = [];
+    const now = new Date().toISOString();
+    keyEntry.history.push({ action: 'release', timestamp: now, assignedTo: null });
+    await saveData();
+    return keyEntry;
+  });
+
   app.get('/keys/:id/history', async (request, reply) => {
     const id = parseInt(request.params.id, 10);
     const keyEntry = keys.find((k) => k.id === id);

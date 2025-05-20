@@ -197,4 +197,24 @@ describe('Key Server API', () => {
     expect(arr).toHaveLength(1);
     expect(arr[0].assignedTo).toBe('Test');
   });
+
+  test('PUT /keys/:id/release marks key as free again', async () => {
+    const { app, dbPath } = await createServer();
+    const res = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'RELEASE' } });
+    const created = JSON.parse(res.payload);
+
+    await app.inject({ method: 'PUT', url: `/keys/${created.id}/inuse`, payload: { assignedTo: 'User' } });
+    const rel = await app.inject({ method: 'PUT', url: `/keys/${created.id}/release` });
+    expect(rel.statusCode).toBe(200);
+    const updated = JSON.parse(rel.payload);
+    expect(updated.inUse).toBe(false);
+    expect(updated.assignedTo).toBeNull();
+    expect(updated.history[updated.history.length - 1].action).toBe('release');
+
+    // Überprüfung der gespeicherten Daten
+    const stored = JSON.parse(await fs.readFile(dbPath, 'utf8'))[0];
+    expect(stored.inUse).toBe(false);
+    expect(stored.assignedTo).toBeNull();
+    expect(stored.history[stored.history.length - 1].action).toBe('release');
+  });
 });

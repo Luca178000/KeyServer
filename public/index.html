@@ -118,6 +118,7 @@
   </main>
 
   <script>
+
     /*
      * Schaltet zwischen hellem und dunklem Design um. Die Auswahl
      * wird in localStorage gesichert und beim Laden wiederhergestellt.
@@ -144,6 +145,7 @@
 
     // Erstellt einen Symbol-Button für die Key-Aktionen
     function createIconButton(icon, title, className, handler) {
+
       const btn = document.createElement('button');
       btn.className = 'icon-button ' + className;
       btn.textContent = icon;
@@ -152,6 +154,7 @@
       return btn;
     }
 
+
     // Zeigt ein JSON-Objekt übersichtlich in einer Ergebnisbox an
     function displayJson(id, obj) {
       const box = document.getElementById(id);
@@ -159,6 +162,7 @@
       const pre = document.createElement('pre');
       pre.textContent = JSON.stringify(obj, null, 2);
       box.appendChild(pre);
+
     }
 
     // Stellt einen einzelnen Key mit Copy-Button dar

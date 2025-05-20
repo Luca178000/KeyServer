@@ -41,6 +41,7 @@ body.dark {
   --primary-hover: #006edc;
 }
 
+
 /* Wird die Klasse "light" gesetzt, wird der helle Stil auch bei
  * systemweitem Darkmode erzwungen. */
 body.light {
@@ -51,6 +52,7 @@ body.light {
   --primary: #007bff;
   --primary-hover: #0056b3;
 }
+
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -195,7 +197,9 @@ button:hover {
   align-items: center;
   font-family: monospace;
 }
+
 .result-box pre {
   margin: 0;
   white-space: pre-wrap;
 }
+

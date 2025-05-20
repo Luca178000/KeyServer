@@ -1,5 +1,12 @@
 const fastify = require('fastify')({ logger: true });
 const fs = require('fs/promises');
+const path = require('path');
+
+// Static file serving
+fastify.register(require('@fastify/static'), {
+  root: path.join(__dirname, 'public'),
+  prefix: '/',
+});
 
 const DB_FILE = './db.json';
 

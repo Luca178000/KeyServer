@@ -1,21 +1,48 @@
 /*
- * Dieses Stylesheet verleiht dem Dashboard ein modernes Erscheinungsbild.
- * Hier werden grundlegende Layout- und Farbregeln definiert.
+ * Modernes Dashboard-Layout mit CSS-Variablen und Grid
  */
+
+:root {
+  --bg-color: #fdfdfd;
+  --text-color: #333;
+  --border-color: #ddd;
+  --primary: #007bff;
+  --primary-hover: #0056b3;
+}
 
 body {
   font-family: sans-serif;
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
-  background: #fdfdfd;
-  color: #333;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+nav.tabs {
+  margin-bottom: 1em;
+  display: flex;
+  gap: 0.5em;
+}
+
+nav.tabs button {
+  padding: 0.5em 1em;
+  border: 1px solid var(--border-color);
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+nav.tabs button:hover {
+  background: var(--primary-hover);
 }
 
 section {
   margin-bottom: 1.5em;
   padding: 1em;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
+  background: #fff;
 }
 
 form {
@@ -32,7 +59,7 @@ form textarea {
 }
 
 button {
-  background-color: #007bff;
+  background-color: var(--primary);
   color: #fff;
   border: none;
   padding: 0.5em 1em;
@@ -41,5 +68,18 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: var(--primary-hover);
+}
+
+.key-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.5em;
+}
+
+.key-card {
+  border: 1px solid var(--border-color);
+  padding: 0.5em;
+  border-radius: 4px;
+  background: #fff;
 }

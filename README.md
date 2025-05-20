@@ -23,6 +23,8 @@ nutzen. Dort werden nun zusätzlich Listen aller freien und aller aktuell
 benutzten Keys angezeigt. Diese Daten stammen aus den Endpunkten
 `/keys/free/list` und `/keys/active/list`.
 Das Layout verwendet nun eine eigene CSS-Datei `public/style.css`, die dem Dashboard ein moderneres Erscheinungsbild verleiht.
+Zusätzlich ist die Oberfläche in mehrere Tabs aufgeteilt. Jeder Tab blendet die zugehörigen Abschnitte ein oder aus. Die Listen freier und aktiver Keys werden in einem Grid (`key-list`) nebeneinander dargestellt.
+
 
 Ebenfalls im Dashboard vorhanden sind Filterfelder für die Gesamtübersicht.
 Mit einer Checkbox lassen sich nur aktuell benutzte Keys anzeigen. Über ein

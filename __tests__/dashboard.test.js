@@ -20,4 +20,12 @@ describe('Dashboard', () => {
     // Im HTML-Code muss der Verweis auf die CSS-Datei vorhanden sein
     expect(res.payload).toContain('<link rel="stylesheet" href="style.css">');
   });
+  test("enthaelt Tab-Navigation", async () => {
+    const { app } = await createServer();
+    const res = await app.inject("/");
+    expect(res.statusCode).toBe(200);
+    expect(res.payload).toContain('data-tab="overview"');
+    expect(res.payload).toContain('class="key-list"');
+  });
+
 });

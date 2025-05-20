@@ -102,6 +102,23 @@ async function buildServer(options = {}) {
     return freeKey;
   });
 
+  // Gibt eine Liste aller aktuell freien Keys zurück
+  // Diese Route wird im Dashboard verwendet, um sofort alle verfügbaren
+  // Keys anzeigen zu können.
+  app.get('/keys/free/list', async () => {
+    // Filtert alle Keys, deren inUse-Flag nicht gesetzt ist
+    const available = keys.filter((k) => !k.inUse);
+    return available;
+  });
+
+  // Liefert alle Keys, die momentan in Benutzung sind
+  // So lässt sich schnell sehen, welche Keys vergeben wurden.
+  app.get('/keys/active/list', async () => {
+    // Filtert alle Keys mit gesetztem inUse-Flag
+    const active = keys.filter((k) => k.inUse);
+    return active;
+  });
+
   app.put('/keys/:id/inuse', async (request, reply) => {
     const id = parseInt(request.params.id, 10);
     const { assignedTo } = request.body || {};

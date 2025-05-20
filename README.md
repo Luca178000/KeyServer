@@ -19,7 +19,9 @@ Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwalte
 
 Nach dem Start kann [http://localhost:3000/](http://localhost:3000/) im Browser
 aufgerufen werden, um eine einfache HTML-Oberfläche für die REST-Endpunkte zu
-nutzen.
+nutzen. Dort werden nun zusätzlich Listen aller freien und aller aktuell
+benutzten Keys angezeigt. Diese Daten stammen aus den neuen Endpunkten
+`/keys/free/list` und `/keys/active/list`.
 
 
 ## REST-Endpunkte
@@ -43,6 +45,12 @@ Antwort ist das neu erstellte Key-Objekt mit ID.
 
 ### GET `/keys/free`
 Liefert den ersten verfügbaren Key (ein Key mit `inUse=false` und `invalid=false`). Gibt einen 404-Statuscode zurück, wenn keiner verfügbar ist.
+
+### GET `/keys/free/list`
+Gibt eine komplette Liste aller momentan freien Keys zurück. Die Antwort ist ein Array der entsprechenden Key-Objekte.
+
+### GET `/keys/active/list`
+Liefert alle Keys, die aktuell in Benutzung sind (`inUse=true`). Auch hier wird ein Array von Key-Objekten zurückgegeben.
 
 ### PUT `/keys/:id/inuse`
 Markiert einen Key als in Benutzung. Die ID wird in der URL angegeben. Im Request-Body kann ein Feld `assignedTo` übergeben werden, um zu notieren, wer den Key verwendet:

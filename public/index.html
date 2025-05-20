@@ -22,6 +22,7 @@
       <h2>Statistik</h2>
       <div>Freie Keys: <span id="freeCount">0</span></div>
       <div>Benutzte Keys: <span id="usedCount">0</span></div>
+      <div>Ungültige Keys: <span id="invalidCount">0</span></div>
     </section>
 
     <section>
@@ -30,7 +31,7 @@
     </section>
 
     <section>
-      <h2>Aktive Keys</h2>
+      <h2>Aktivierte Keys</h2>
       <div id="listActive" class="key-list"></div>
     </section>
   </div>
@@ -107,15 +108,74 @@
   </div>
 
   <script>
-    // Hilfsfunktion rendert eine Liste von Keys als Karten in der angegebenen Div
+    // Erstellt einen Button für die Key-Aktionen
+    function createActionButton(text, handler) {
+      const btn = document.createElement('button');
+      btn.textContent = text;
+      btn.addEventListener('click', handler);
+      return btn;
+    }
+
+    // Markiert einen Key als benutzt
+    async function markKeyInUse(id, assignedTo = '') {
+      const res = await fetch(`/keys/${id}/inuse`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignedTo })
+      });
+      const data = await res.json();
+      document.getElementById('inUseResult').textContent = JSON.stringify(data, null, 2);
+      updateStats();
+      loadFreeList();
+      loadActiveList();
+      showHistory(id);
+      return data;
+    }
+
+    // Rendert die Keys mit zugehörigen Aktionsknöpfen untereinander
     function renderList(targetId, data) {
       const container = document.getElementById(targetId);
       container.innerHTML = '';
+      data.sort((a, b) => a.id - b.id);
       for (const entry of data) {
-        const card = document.createElement('div');
-        card.className = 'key-card';
-        card.textContent = `${entry.id}: ${entry.key}`;
-        container.appendChild(card);
+        const row = document.createElement('div');
+        row.className = 'key-row';
+
+        const text = document.createElement('span');
+        text.textContent = `${entry.id}: ${entry.key}`;
+        row.appendChild(text);
+
+        const actions = document.createElement('div');
+        actions.className = 'key-actions';
+
+        actions.appendChild(createActionButton('Benutzen', () => {
+          const assigned = prompt('Zugewiesen an?') || '';
+          markKeyInUse(entry.id, assigned);
+        }));
+
+        actions.appendChild(createActionButton('Freigeben', () => {
+          releaseKey(entry.id);
+        }));
+
+        actions.appendChild(createActionButton('Ungültig', () => {
+          invalidateKey(entry.id);
+        }));
+
+        actions.appendChild(createActionButton('Löschen', () => {
+          deleteKey(entry.id);
+        }));
+
+        actions.appendChild(createActionButton('Kopieren', () => {
+          navigator.clipboard.writeText(entry.key).catch(() => {});
+        }));
+
+        actions.appendChild(createActionButton('Historie', () => {
+          showHistory(entry.id);
+          document.querySelector('nav.tabs button[data-tab="history"]').click();
+        }));
+
+        row.appendChild(actions);
+        container.appendChild(row);
       }
     }
 
@@ -124,8 +184,10 @@
       const data = await res.json();
       const free = data.filter(k => !k.inUse).length;
       const used = data.filter(k => k.inUse).length;
+      const invalid = data.filter(k => k.invalid).length;
       document.getElementById('freeCount').textContent = free;
       document.getElementById('usedCount').textContent = used;
+      document.getElementById('invalidCount').textContent = invalid;
     }
 
     async function loadFreeList() {
@@ -196,17 +258,7 @@
       e.preventDefault();
       const id = document.getElementById('keyId').value;
       const assignedTo = document.getElementById('assignedTo').value;
-      const res = await fetch(`/keys/${id}/inuse`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assignedTo })
-      });
-      const data = await res.json();
-      document.getElementById('inUseResult').textContent = JSON.stringify(data, null, 2);
-      updateStats();
-      loadFreeList();
-      loadActiveList();
-      showHistory(id);
+      await markKeyInUse(id, assignedTo);
     });
 
     async function releaseKey(id) {

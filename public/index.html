@@ -3,9 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <title>Key Server Dashboard</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: auto; }
+    section { margin-bottom: 1.5em; }
+    pre { background: #f0f0f0; padding: 0.5em; overflow: auto; }
+  </style>
 </head>
 <body>
   <h1>Key Server Dashboard</h1>
+
+  <section>
+    <h2>Statistik</h2>
+    <div>Freie Keys: <span id="freeCount">0</span></div>
+    <div>Benutzte Keys: <span id="usedCount">0</span></div>
+  </section>
 
   <section>
     <h2>Alle Keys</h2>
@@ -38,11 +49,33 @@
     <pre id="inUseResult"></pre>
   </section>
 
+  <section>
+    <h2>Log</h2>
+    <pre id="historyLog"></pre>
+  </section>
+
   <script>
+    async function updateStats() {
+      const res = await fetch('/keys');
+      const data = await res.json();
+      const free = data.filter(k => !k.inUse).length;
+      const used = data.filter(k => k.inUse).length;
+      document.getElementById('freeCount').textContent = free;
+      document.getElementById('usedCount').textContent = used;
+    }
+
+    async function showHistory(id) {
+      if (!id) return;
+      const res = await fetch(`/keys/${id}/history`);
+      const hist = await res.json();
+      document.getElementById('historyLog').textContent = JSON.stringify(hist, null, 2);
+    }
+
     document.getElementById('loadKeys').addEventListener('click', async () => {
       const res = await fetch('/keys');
       const data = await res.json();
       document.getElementById('allKeys').textContent = JSON.stringify(data, null, 2);
+      updateStats();
     });
 
     document.getElementById('addKeyForm').addEventListener('submit', async (e) => {
@@ -55,12 +88,16 @@
       });
       const data = await res.json();
       document.getElementById('addKeyResult').textContent = JSON.stringify(data, null, 2);
+      updateStats();
+      showHistory(data.id);
     });
 
     document.getElementById('getFreeKey').addEventListener('click', async () => {
       const res = await fetch('/keys/free');
       const data = await res.json();
       document.getElementById('freeKey').textContent = JSON.stringify(data, null, 2);
+      updateStats();
+      showHistory(data.id);
     });
 
     document.getElementById('markInUseForm').addEventListener('submit', async (e) => {
@@ -74,7 +111,11 @@
       });
       const data = await res.json();
       document.getElementById('inUseResult').textContent = JSON.stringify(data, null, 2);
+      updateStats();
+      showHistory(id);
     });
+
+    document.addEventListener('DOMContentLoaded', updateStats);
   </script>
 </body>
 </html>

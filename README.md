@@ -15,6 +15,13 @@ Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwalte
    ```
    Der Server läuft anschließend auf Port **3000**.
 
+## Dashboard
+
+Nach dem Start kann [http://localhost:3000/](http://localhost:3000/) im Browser
+aufgerufen werden, um eine einfache HTML-Oberfläche für die REST-Endpunkte zu
+nutzen.
+
+
 ## REST-Endpunkte
 
 ### GET `/keys`

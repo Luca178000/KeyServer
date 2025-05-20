@@ -26,6 +26,8 @@ describe('Dashboard', () => {
     expect(res.statusCode).toBe(200);
     expect(res.payload).toContain('data-tab="overview"');
     expect(res.payload).toContain('class="key-list"');
+    expect(res.payload).toContain('Aktivierte Keys');
+    expect(res.payload).toContain('invalidCount');
   });
 
 });

@@ -72,14 +72,22 @@ button:hover {
 }
 
 .key-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 0.5em;
 }
 
-.key-card {
+.key-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border: 1px solid var(--border-color);
   padding: 0.5em;
   border-radius: 4px;
   background: #fff;
+}
+
+.key-actions {
+  display: flex;
+  gap: 0.5em;
 }

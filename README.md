@@ -18,14 +18,12 @@ Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwalte
 ## Dashboard
 
 Nach dem Start kann [http://localhost:3000/](http://localhost:3000/) im Browser
-aufgerufen werden, um eine einfache HTML-Oberfläche für die REST-Endpunkte zu
-nutzen. Dort werden nun zusätzlich Listen aller freien und aller aktuell
-benutzten Keys angezeigt. Diese Daten stammen aus den Endpunkten
-`/keys/free/list` und `/keys/active/list`.
-Das Layout verwendet nun eine eigene CSS-Datei `public/style.css`, die dem Dashboard ein moderneres Erscheinungsbild verleiht.
-Zusätzlich ist die Oberfläche in mehrere Tabs aufgeteilt. Jeder Tab blendet die zugehörigen Abschnitte ein oder aus. Die Listen freier und aktiver Keys werden in einem Grid (`key-list`) nebeneinander dargestellt.
+aufgerufen werden, um eine einfache HTML-Oberfläche für die REST-Endpunkte zu nutzen. Dort werden Listen aller freien und aller aktuell benutzten Keys angezeigt. Diese Daten stammen aus den Endpunkten `/keys/free/list` und `/keys/active/list`.
+Das Layout verwendet eine eigene CSS-Datei `public/style.css`, die dem Dashboard ein modernes Erscheinungsbild verleiht.
+Die Oberfläche ist in mehrere Tabs aufgeteilt. Jeder Tab blendet die zugehörigen Abschnitte ein oder aus. Die Listen der Keys sind nun als vertikale Liste umgesetzt.
+Zu jedem Eintrag stehen Schaltflächen bereit, um den Key zu kopieren, zu löschen, freizugeben, als benutzt oder ungültig zu markieren sowie die Historie einzusehen.
 
-
+Zusätzlich gibt es nun in der Statistik einen Zähler für ungültige Keys.
 Ebenfalls im Dashboard vorhanden sind Filterfelder für die Gesamtübersicht.
 Mit einer Checkbox lassen sich nur aktuell benutzte Keys anzeigen. Über ein
 Textfeld kann zudem nach dem Wert des Feldes `assignedTo` gefiltert werden.

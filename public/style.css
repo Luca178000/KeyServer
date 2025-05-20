@@ -28,6 +28,30 @@
   }
 }
 
+/*
+ * Wird die Klasse "dark" auf <body> gesetzt, überschreiben diese
+ * Werte die Farbvariablen und erzwingen damit den Darkmode.
+ */
+body.dark {
+  --bg-color: #1d1d1d;
+  --text-color: #eee;
+  --border-color: #444;
+  --card-bg: #2a2a2a;
+  --primary: #0a84ff;
+  --primary-hover: #006edc;
+}
+
+/* Wird die Klasse "light" gesetzt, wird der helle Stil auch bei
+ * systemweitem Darkmode erzwungen. */
+body.light {
+  --bg-color: #fdfdfd;
+  --text-color: #333;
+  --border-color: #ddd;
+  --card-bg: #fff;
+  --primary: #007bff;
+  --primary-hover: #0056b3;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--bg-color);
@@ -44,6 +68,30 @@ body {
   margin: 0 auto;
   padding: 1rem;
   flex: 1;
+}
+
+header.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+#themeToggle {
+  font-size: 1.2rem;
+  background: none;
+  border: 1px solid var(--border-color);
+  padding: 0.25em 0.5em;
+  border-radius: 4px;
+}
+
+#themeToggle:hover {
+  background: var(--card-bg);
 }
 
 nav.tabs {
@@ -96,6 +144,20 @@ button {
   cursor: pointer;
 }
 
+/* Buttons, die nur ein Symbol enthalten und farblich hervorgehoben werden */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+.icon-use { color: green; }
+.icon-release { color: orange; }
+.icon-invalidate { color: gray; }
+.icon-delete { color: red; }
+.icon-copy { color: var(--primary); }
+.icon-history { color: var(--text-color); }
+
 button:hover {
   background-color: var(--primary-hover);
 }
@@ -119,4 +181,21 @@ button:hover {
 .key-actions {
   display: flex;
   gap: 0.5em;
+}
+
+/* Box zur Darstellung von Serverantworten, z.B. ein abgerufener Key */
+.result-box {
+  margin-top: 0.5em;
+  padding: 0.75em;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--card-bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: monospace;
+}
+.result-box pre {
+  margin: 0;
+  white-space: pre-wrap;
 }

@@ -30,4 +30,22 @@ describe('Dashboard', () => {
     expect(res.payload).toContain('invalidCount');
   });
 
+  test('enthält Darkmode-Button', async () => {
+    const { app } = await createServer();
+    const res = await app.inject('/');
+    expect(res.payload).toContain('id="themeToggle"');
+  });
+
+  test('verwendet Ergebnisboxen', async () => {
+    const { app } = await createServer();
+    const res = await app.inject('/');
+    expect(res.payload).toContain('class="result-box"');
+  });
+
+  test('nutzt Icon-Buttons', async () => {
+    const { app } = await createServer();
+    const res = await app.inject('/');
+    expect(res.payload).toContain('icon-button');
+  });
+
 });

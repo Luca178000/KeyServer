@@ -43,7 +43,21 @@ async function buildServer(options = {}) {
 
   await loadData();
 
-  app.get('/keys', async () => keys);
+  app.get('/keys', async (request) => {
+    let result = keys;
+    const { inUse, assignedTo } = request.query || {};
+
+    if (typeof inUse !== 'undefined') {
+      const bool = String(inUse).toLowerCase() === 'true';
+      result = result.filter((k) => k.inUse === bool);
+    }
+
+    if (typeof assignedTo !== 'undefined') {
+      result = result.filter((k) => k.assignedTo === assignedTo);
+    }
+
+    return result;
+  });
 
   app.post('/keys', async (request, reply) => {
     const { key } = request.body || {};

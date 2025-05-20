@@ -27,6 +27,10 @@ Außerdem steht ein Formular **Key freigeben** bereit. Mit Eingabe einer ID
 schickt es einen PUT-Request auf `/keys/:id/release`, markiert den Key damit als
 frei und zeigt die Antwort direkt unter dem Formular an.
 
+Neu hinzugekommen ist ein weiteres Formular **Key löschen**, das eine
+ID entgegennimmt und damit einen `DELETE`-Request auf `/keys/:id` ausführt.
+Das Ergebnis wird ebenfalls im Dashboard angezeigt.
+
 
 ## REST-Endpunkte
 
@@ -84,6 +88,9 @@ Die Antwort enthält das aktualisierte Key-Objekt. Bei unbekannter ID wird ein 4
 
 ### PUT `/keys/:id/release`
 Setzt einen zuvor belegten Key wieder auf frei. `inUse` wird dabei auf `false` gesetzt und das Feld `assignedTo` geleert. In der History wird ein Eintrag mit der Aktion `release` und Zeitstempel gespeichert. Die Antwort enthält den aktualisierten Key.
+
+### DELETE `/keys/:id`
+Entfernt einen Key dauerhaft aus der Datenbank. Bei Erfolg wird `{ success: true }` zurückgegeben. Ist die ID unbekannt, lautet der Statuscode `404`.
 
 ## Datenstruktur
 

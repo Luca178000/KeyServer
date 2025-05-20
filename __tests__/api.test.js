@@ -79,4 +79,37 @@ describe('Key Server API', () => {
     const res = await app.inject({ method: 'POST', url: '/keys', payload: {} });
     expect(res.statusCode).toBe(400);
   });
+
+  test('DELETE /keys/:id removes a key', async () => {
+    const { app, dbPath } = await createServer();
+    const one = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'A' } });
+    const two = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'B' } });
+    const first = JSON.parse(one.payload);
+
+    const del = await app.inject({ method: 'DELETE', url: `/keys/${first.id}` });
+    expect(del.statusCode).toBe(200);
+
+    const list = await app.inject('/keys');
+    const all = JSON.parse(list.payload);
+    expect(all).toHaveLength(1);
+    expect(all[0].key).toBe('B');
+
+    const persisted = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    expect(persisted).toHaveLength(1);
+    expect(persisted[0].key).toBe('B');
+  });
+
+  test('PUT /keys/:id/invalidate marks key as invalid', async () => {
+    const { app, dbPath } = await createServer();
+    const res = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'XYZ' } });
+    const created = JSON.parse(res.payload);
+
+    const inv = await app.inject({ method: 'PUT', url: `/keys/${created.id}/invalidate` });
+    expect(inv.statusCode).toBe(200);
+    const updated = JSON.parse(inv.payload);
+    expect(updated.invalid).toBe(true);
+
+    const file = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    expect(file[0].invalid).toBe(true);
+  });
 });

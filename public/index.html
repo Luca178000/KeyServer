@@ -37,7 +37,7 @@
   <section>
     <h2>Neuen Key hinzufügen</h2>
     <form id="addKeyForm">
-      <input type="text" id="newKey" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" required />
+      <textarea id="newKey" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" required></textarea>
       <button type="submit">Hinzufügen</button>
     </form>
     <pre id="addKeyResult"></pre>
@@ -104,18 +104,24 @@
 
     document.getElementById('addKeyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const key = document.getElementById('newKey').value;
+      // Inhalt des Textfeldes auslesen und in einzelne Zeilen aufteilen
+      const raw = document.getElementById('newKey').value;
+      const keys = raw.split(/\r?\n/).map(k => k.trim()).filter(Boolean);
+
+      // Anfrage an den Server schicken, wobei ein Array von Keys übertragen wird
       const res = await fetch('/keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key })
+        body: JSON.stringify({ keys })
       });
+
+      // Serverantwort anzeigen
       const data = await res.json();
       document.getElementById('addKeyResult').textContent = JSON.stringify(data, null, 2);
       updateStats();
       loadFreeList();
       loadActiveList();
-      showHistory(data.id);
+      if (data.length > 0) showHistory(data[0].id);
     });
 
     document.getElementById('getFreeKey').addEventListener('click', async () => {

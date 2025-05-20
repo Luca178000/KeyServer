@@ -105,11 +105,11 @@ Und f\xc3\bcr mehrere Keys:
 { "keys": ["AAAAA-BBBBB-CCCCC-DDDDD-EEEEE", "11111-22222-33333-44444-55555"] }
 ```
 
-Damit lassen sich mehrere Keys in einem einzigen Request \u00fcbermitteln. Die
-Antwort enth\u00e4lt unabh\u00e4ngig vom Eingabeformat stets ein Array der erzeugten
+Damit lassen sich mehrere Keys in einem einzigen Request übermitteln. Die
+Antwort enthält unabhängig vom Eingabeformat stets ein Array der erzeugten
 Key-Objekte.
  
-Bereits vorhandene Keys werden dabei ignoriert und nicht erneut gespeichert. F\u00fchrt die Liste nur Duplikate oder ung\u00fcltige Eintr\u00e4ge, antwortet der Server mit Statuscode `400`.
+Bereits vorhandene Keys werden dabei ignoriert und nicht erneut gespeichert. Führt die Liste nur Duplikate oder ungültige Einträge, antwortet der Server mit Statuscode `400`.
 
 ### GET `/keys/free`
 Liefert den ersten verfügbaren Key (ein Key mit `inUse=false` und `invalid=false`). Gibt einen 404-Statuscode zurück, wenn keiner verfügbar ist.

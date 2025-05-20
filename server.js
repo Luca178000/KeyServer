@@ -81,6 +81,8 @@ async function buildServer(options = {}) {
     for (const entry of incoming) {
       // Ungültige Keys überspringen
       if (!pattern.test(entry)) continue;
+      // Bereits vorhandene Keys nicht erneut anlegen
+      if (keys.some((k) => k.key === entry)) continue;
 
       const now = new Date().toISOString();
       const newKey = {

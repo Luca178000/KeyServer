@@ -68,6 +68,22 @@ describe('Key Server API', () => {
     expect(stored).toHaveLength(2);
   });
 
+  test('POST /keys ignoriert bereits vorhandene Eintr\xC3\xA4ge', async () => {
+    const { app, dbPath } = await createServer();
+    const a = 'AAAAA-AAAAA-AAAAA-AAAAA-11111';
+    const b = 'BBBBB-BBBBB-BBBBB-BBBBB-22222';
+    await app.inject({ method: 'POST', url: '/keys', payload: { key: a } });
+
+    const res = await app.inject({ method: 'POST', url: '/keys', payload: { keys: [a, b] } });
+    expect(res.statusCode).toBe(201);
+    const arr = JSON.parse(res.payload);
+    expect(arr).toHaveLength(1);
+    expect(arr[0].key).toBe(b);
+
+    const stored = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    expect(stored).toHaveLength(2);
+  });
+
   test('GET /keys/free and PUT /keys/:id/inuse', async () => {
     const { app, dbPath } = await createServer();
     const k1 = 'AAAAA-AAAAA-AAAAA-AAAAA-00001';

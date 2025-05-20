@@ -1,5 +1,7 @@
 const buildServer = require('./server');
 
+// Startet den Fastify-Server, wartet auf Verbindungen und
+// beendet den Prozess bei unerwarteten Fehlern.
 const start = async () => {
   try {
     const app = await buildServer({ logger: true });

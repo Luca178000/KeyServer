@@ -24,7 +24,8 @@ async function buildServer(options = {}) {
       keys = JSON.parse(data);
       const maxId = keys.reduce((max, k) => Math.max(max, k.id), 0);
       nextId = maxId + 1;
-      // ensure new fields exist for already persisted keys
+      // Stellt sicher, dass neu eingef\u00fchrte Felder auch bei bereits
+      // gespeicherten Keys vorhanden sind
       keys.forEach((k) => {
         if (!k.history) k.history = [];
         if (!k.createdAt) k.createdAt = new Date().toISOString();

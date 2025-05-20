@@ -279,4 +279,34 @@ describe('Key Server API', () => {
     expect(stored.assignedTo).toBeNull();
     expect(stored.history[stored.history.length - 1].action).toBe('release');
   });
+
+  test('Dashboard releaseKey flow via fetch', async () => {
+    const { app } = await createServer();
+
+    // Server auf zufälligem Port starten, um echte HTTP-Aufrufe zu simulieren
+    const address = await app.listen({ port: 0, host: '127.0.0.1' });
+    const port = app.server.address().port;
+
+    // Neuen Key anlegen und anschließend in Benutzung setzen
+    const create = await fetch(`http://127.0.0.1:${port}/keys`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'FFFFF-FFFFF-FFFFF-FFFFF-00001' })
+    });
+    const created = (await create.json())[0];
+    await fetch(`http://127.0.0.1:${port}/keys/${created.id}/inuse`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assignedTo: 'Tester' })
+    });
+
+    // Ablauf wie im Dashboard: Key wieder freigeben
+    const rel = await fetch(`http://127.0.0.1:${port}/keys/${created.id}/release`, { method: 'PUT' });
+    const data = await rel.json();
+
+    expect(data.inUse).toBe(false);
+    expect(data.assignedTo).toBeNull();
+
+    await app.close();
+  });
 });

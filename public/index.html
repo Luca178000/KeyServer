@@ -60,6 +60,15 @@
   </section>
 
   <section>
+    <h2>Key freigeben</h2>
+    <form id="releaseForm">
+      <input type="number" id="releaseId" placeholder="ID" required />
+      <button type="submit">Freigeben</button>
+    </form>
+    <pre id="releaseResult"></pre>
+  </section>
+
+  <section>
     <h2>Log</h2>
     <pre id="historyLog"></pre>
   </section>
@@ -149,6 +158,24 @@
       loadFreeList();
       loadActiveList();
       showHistory(id);
+    });
+
+    // Setzt einen Key über die API wieder auf frei
+    async function releaseKey(id) {
+      const res = await fetch(`/keys/${id}/release`, { method: 'PUT' });
+      const data = await res.json();
+      document.getElementById('releaseResult').textContent = JSON.stringify(data, null, 2);
+      updateStats();
+      loadFreeList();
+      loadActiveList();
+      showHistory(id);
+      return data;
+    }
+
+    document.getElementById('releaseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('releaseId').value;
+      await releaseKey(id);
     });
 
     document.addEventListener('DOMContentLoaded', () => {

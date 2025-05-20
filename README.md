@@ -20,8 +20,12 @@ Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwalte
 Nach dem Start kann [http://localhost:3000/](http://localhost:3000/) im Browser
 aufgerufen werden, um eine einfache HTML-Oberfläche für die REST-Endpunkte zu
 nutzen. Dort werden nun zusätzlich Listen aller freien und aller aktuell
-benutzten Keys angezeigt. Diese Daten stammen aus den neuen Endpunkten
+benutzten Keys angezeigt. Diese Daten stammen aus den Endpunkten
 `/keys/free/list` und `/keys/active/list`.
+
+Außerdem steht ein Formular **Key freigeben** bereit. Mit Eingabe einer ID
+schickt es einen PUT-Request auf `/keys/:id/release`, markiert den Key damit als
+frei und zeigt die Antwort direkt unter dem Formular an.
 
 
 ## REST-Endpunkte

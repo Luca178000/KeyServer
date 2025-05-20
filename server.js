@@ -97,6 +97,12 @@ async function buildServer(options = {}) {
       created.push(newKey);
     }
 
+    // Wurden keine gültigen Keys übergeben, antworten wir mit einem Fehler
+    if (created.length === 0) {
+      reply.code(400);
+      return { error: 'Kein gültiger Key übergeben' };
+    }
+
     await saveData();
     reply.code(201);
     return created;

@@ -45,6 +45,9 @@ sein. Es werden zwei Formate akzeptiert:
 
 Jeder Eintrag muss dem Muster `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` entsprechen.
 
+Werden keine g\xC3\xBCltigen Keys \xFCbergeben, antwortet der Server mit Statuscode
+`400`.
+
 Beispiel f\xc3\bcr einen einzelnen Key:
 ```json
 { "key": "AAAAA-BBBBB-CCCCC-DDDDD-EEEEE" }

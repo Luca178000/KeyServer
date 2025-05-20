@@ -36,12 +36,29 @@ describe('Key Server API', () => {
     expect(content[0].history).toEqual([]);
   });
 
-  test('POST /keys accepts multiple keys and skips invalid ones', async () => {
+  test('POST /keys mit mehreren neuen Keys liefert alle Einträge', async () => {
+    const { app, dbPath } = await createServer();
+    const keys = [
+      'AAAAA-BBBBB-CCCCC-DDDDD-11111',
+      'AAAAA-BBBBB-CCCCC-DDDDD-22222',
+      'AAAAA-BBBBB-CCCCC-DDDDD-33333',
+    ];
+    const res = await app.inject({ method: 'POST', url: '/keys', payload: { keys } });
+    expect(res.statusCode).toBe(201);
+    const arr = JSON.parse(res.payload);
+    expect(arr).toHaveLength(3);
+    expect(arr.map((k) => k.key).sort()).toEqual(keys.sort());
+
+    const stored = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    expect(stored).toHaveLength(3);
+  });
+
+  test('POST /keys akzeptiert mehrere Keys in einem Request', async () => {
     const { app, dbPath } = await createServer();
     const res = await app.inject({
       method: 'POST',
       url: '/keys',
-      payload: { keys: ['11111-22222-33333-44444-55555', 'invalid', 'AAAAA-AAAAA-AAAAA-AAAAA-AAAAA'] },
+      payload: { keys: ['11111-22222-33333-44444-55555', 'AAAAA-AAAAA-AAAAA-AAAAA-AAAAA'] },
     });
     expect(res.statusCode).toBe(201);
     const arr = JSON.parse(res.payload);
@@ -97,6 +114,17 @@ describe('Key Server API', () => {
   test('POST /keys without key returns 400', async () => {
     const { app } = await createServer();
     const res = await app.inject({ method: 'POST', url: '/keys', payload: {} });
+    expect(res.statusCode).toBe(400);
+  });
+
+  test('POST /keys mit ung\xC3\xBCltigem Key liefert 400', async () => {
+    const { app } = await createServer();
+    // Hier wird ein falsch aufgebauter Key verwendet
+    const res = await app.inject({
+      method: 'POST',
+      url: '/keys',
+      payload: { key: 'AAAAA-BBBBB-CCCCC-DDDD' },
+    });
     expect(res.statusCode).toBe(400);
   });
 

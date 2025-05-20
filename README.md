@@ -39,7 +39,7 @@ Die Antwort enthält das aktualisierte Key-Objekt. Bei unbekannter ID wird ein 4
 
 ## Datenstruktur
 
-Die Daten werden nur im Speicher gehalten und sehen wie folgt aus:
+Die Daten werden in der Datei `db.json` gespeichert und sehen wie folgt aus:
 ```json
 {
   "id": 1,
@@ -48,7 +48,7 @@ Die Daten werden nur im Speicher gehalten und sehen wie folgt aus:
   "assignedTo": null
 }
 ```
-Es gibt keine Persistenz über Neustarts hinaus.
+Beim Start werden die gespeicherten Einträge geladen, sodass die Keys auch nach einem Neustart des Servers erhalten bleiben.
 
 ## Sicherheit
 

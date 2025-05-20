@@ -1,8 +1,27 @@
 const fastify = require('fastify')({ logger: true });
+const fs = require('fs/promises');
+
+const DB_FILE = './db.json';
 
 // In-Memory-Liste aller Keys
 let keys = [];
 let nextId = 1; // Laufende ID zur eindeutigen Identifikation
+
+async function loadData() {
+  try {
+    const data = await fs.readFile(DB_FILE, 'utf8');
+    keys = JSON.parse(data);
+    const maxId = keys.reduce((max, k) => Math.max(max, k.id), 0);
+    nextId = maxId + 1;
+  } catch (err) {
+    keys = [];
+    nextId = 1;
+  }
+}
+
+async function saveData() {
+  await fs.writeFile(DB_FILE, JSON.stringify(keys, null, 2));
+}
 
 /**
  * GET /keys - Gibt alle gespeicherten Keys zurück
@@ -30,6 +49,7 @@ fastify.post('/keys', async (request, reply) => {
   };
 
   keys.push(newKey);
+  await saveData();
   reply.code(201);
   return newKey;
 });
@@ -62,12 +82,14 @@ fastify.put('/keys/:id/inuse', async (request, reply) => {
 
   keyEntry.inUse = true;
   keyEntry.assignedTo = assignedTo || null;
+  await saveData();
   return keyEntry;
 });
 
 // Server auf Port 3000 starten
 const start = async () => {
   try {
+    await loadData();
     await fastify.listen({ port: 3000, host: '0.0.0.0' });
     console.log('Server läuft auf Port 3000');
   } catch (err) {

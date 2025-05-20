@@ -60,28 +60,46 @@ async function buildServer(options = {}) {
   });
 
   app.post('/keys', async (request, reply) => {
-    const { key } = request.body || {};
-    if (!key) {
+    const { key, keys: keyList } = request.body || {};
+
+    // Sowohl ein einzelner Key als auch ein Array von Keys werden akzeptiert
+    // In diesem Array sammeln wir alle vom Client gesendeten Einträge
+    const incoming = [];
+    if (Array.isArray(keyList)) incoming.push(...keyList);
+    else if (typeof key === 'string') incoming.push(key);
+
+    if (incoming.length === 0) {
       reply.code(400);
       return { error: 'Key fehlt im Request-Body' };
     }
 
-    const now = new Date().toISOString();
-    const newKey = {
-      id: nextId++,
-      key,
-      inUse: false,
-      assignedTo: null,
-      createdAt: now,
-      lastUsedAt: null,
-      history: [],
-      invalid: false,
-    };
+    // Regex, das auf das Muster XXXXX-XXXXX-XXXXX-XXXXX-XXXXX prüft
+    const pattern = /^[A-Z0-9]{5}(?:-[A-Z0-9]{5}){4}$/;
 
-    keys.push(newKey);
+    const created = [];
+    // Alle übergebenen Keys einzeln validieren und anlegen
+    for (const entry of incoming) {
+      // Ungültige Keys überspringen
+      if (!pattern.test(entry)) continue;
+
+      const now = new Date().toISOString();
+      const newKey = {
+        id: nextId++,
+        key: entry,
+        inUse: false,
+        assignedTo: null,
+        createdAt: now,
+        lastUsedAt: null,
+        history: [],
+        invalid: false,
+      };
+      keys.push(newKey);
+      created.push(newKey);
+    }
+
     await saveData();
     reply.code(201);
-    return newKey;
+    return created;
   });
 
   app.get('/keys/free', async (request, reply) => {

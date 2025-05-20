@@ -1,21 +1,49 @@
 /*
- * Modernes Dashboard-Layout mit CSS-Variablen und Grid
+ * Modernes Dashboard-Layout mit CSS-Variablen
+ * und optionalem Darkmode. Alle Farben sind
+ * als Variablen definiert, sodass sich Themes
+ * einfach anpassen lassen.
  */
 
 :root {
   --bg-color: #fdfdfd;
   --text-color: #333;
   --border-color: #ddd;
+  --card-bg: #fff;
   --primary: #007bff;
   --primary-hover: #0056b3;
 }
 
+/* Dunkles Farbschema, wenn es vom System
+ * bevorzugt wird. Dadurch wirkt das Dashboard
+ * automatisch auch bei aktivem Darkmode stimmig. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1d1d1d;
+    --text-color: #eee;
+    --border-color: #444;
+    --card-bg: #2a2a2a;
+    --primary: #0a84ff;
+    --primary-hover: #006edc;
+  }
+}
+
 body {
-  font-family: sans-serif;
-  max-width: 900px;
-  margin: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--bg-color);
   color: var(--text-color);
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+  flex: 1;
 }
 
 nav.tabs {
@@ -42,7 +70,8 @@ section {
   padding: 1em;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  background: #fff;
+  background: var(--card-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 form {
@@ -84,7 +113,7 @@ button:hover {
   border: 1px solid var(--border-color);
   padding: 0.5em;
   border-radius: 4px;
-  background: #fff;
+  background: var(--card-bg);
 }
 
 .key-actions {

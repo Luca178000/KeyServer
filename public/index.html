@@ -7,14 +7,18 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Key Server Dashboard</h1>
+  <header class="container">
+    <h1>Key Server Dashboard</h1>
 
-  <!-- Navigationsleiste für die einzelnen Tabs -->
-  <nav class="tabs">
-    <button data-tab="overview">Übersicht</button>
-    <button data-tab="actions">Aktionen</button>
-    <button data-tab="history">Historie</button>
-  </nav>
+    <!-- Navigationsleiste für die einzelnen Tabs -->
+    <nav class="tabs">
+      <button data-tab="overview">Übersicht</button>
+      <button data-tab="actions">Aktionen</button>
+      <button data-tab="history">Historie</button>
+    </nav>
+  </header>
+
+  <main class="container">
 
   <!-- Tab: Statistik und Listen -->
   <div id="overview" class="tab-content">
@@ -106,6 +110,8 @@
       <pre id="historyLog"></pre>
     </section>
   </div>
+
+  </main>
 
   <script>
     // Erstellt einen Button für die Key-Aktionen

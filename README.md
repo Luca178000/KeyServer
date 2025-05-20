@@ -142,10 +142,10 @@ Dieses Projekt enthält keine Sicherheitsmechanismen, keine Authentifizierung un
 
 ## Tests
 
-Um sicherzustellen, dass alle Funktionen weiterhin korrekt arbeiten, existieren Jest-Tests im Verzeichnis __tests__. Die Ausführung erfolgt mit:
+Um sicherzustellen, dass alle Funktionen weiterhin korrekt arbeiten, existieren Jest-Tests im Verzeichnis __tests__. Die Ausführung inklusive Testabdeckung erfolgt mit:
 
 ```bash
 npm test
 ```
 
-Dabei werden sämtliche Tests gestartet und die Ergebnisse im Terminal ausgegeben.
+Dabei werden sämtliche Tests gestartet und die Ergebnisse sowie die Coverage im Terminal ausgegeben.

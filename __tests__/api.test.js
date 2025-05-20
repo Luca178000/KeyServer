@@ -113,6 +113,29 @@ describe('Key Server API', () => {
     expect(file[0].invalid).toBe(true);
   });
 
+  test('GET /keys/free ignores invalid keys', async () => {
+    const { app } = await createServer();
+
+    // Zwei Keys anlegen, von denen einer ungültig markiert wird
+    const one = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'A' } });
+    const two = await app.inject({ method: 'POST', url: '/keys', payload: { key: 'B' } });
+    const first = JSON.parse(one.payload);
+
+    // Ersten Key ungültig setzen
+    await app.inject({ method: 'PUT', url: `/keys/${first.id}/invalidate` });
+
+    const free = await app.inject('/keys/free');
+    expect(free.statusCode).toBe(200);
+    const data = JSON.parse(free.payload);
+    // Erwartet wird der zweite Key, da der erste ungültig ist
+    expect(data.key).toBe('B');
+
+    // Zweiten Key in Benutzung setzen, danach sollte keiner mehr frei sein
+    await app.inject({ method: 'PUT', url: `/keys/${data.id}/inuse`, payload: {} });
+    const none = await app.inject('/keys/free');
+    expect(none.statusCode).toBe(404);
+  });
+
   test('GET /keys filters by query parameters', async () => {
     const { app } = await createServer();
 

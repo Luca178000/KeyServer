@@ -67,3 +67,13 @@ Beim Start werden die gespeicherten Einträge geladen, sodass die Keys auch nach
 ## Sicherheit
 
 Dieses Projekt enthält keine Sicherheitsmechanismen, keine Authentifizierung und kein HTTPS. Der Fokus liegt allein auf den oben beschriebenen REST-Endpunkten.
+
+## Tests
+
+Um sicherzustellen, dass alle Funktionen weiterhin korrekt arbeiten, existieren Jest-Tests im Verzeichnis __tests__. Die Ausführung erfolgt mit:
+
+```bash
+npm test
+```
+
+Dabei werden sämtliche Tests gestartet und die Ergebnisse im Terminal ausgegeben.

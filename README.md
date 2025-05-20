@@ -27,6 +27,11 @@ Außerdem steht ein Formular **Key freigeben** bereit. Mit Eingabe einer ID
 schickt es einen PUT-Request auf `/keys/:id/release`, markiert den Key damit als
 frei und zeigt die Antwort direkt unter dem Formular an.
 
+Ebenfalls neu ist ein Formular **Key ungültig**. Gibt man dort eine ID ein,
+wird ein PUT-Request auf `/keys/:id/invalidate` ausgelöst. Der gewählte Key wird
+dadurch dauerhaft als ungültig markiert und das Ergebnis unter dem Formular
+angezeigt.
+
 
 ## REST-Endpunkte
 
@@ -84,6 +89,9 @@ Die Antwort enthält das aktualisierte Key-Objekt. Bei unbekannter ID wird ein 4
 
 ### PUT `/keys/:id/release`
 Setzt einen zuvor belegten Key wieder auf frei. `inUse` wird dabei auf `false` gesetzt und das Feld `assignedTo` geleert. In der History wird ein Eintrag mit der Aktion `release` und Zeitstempel gespeichert. Die Antwort enthält den aktualisierten Key.
+
+### PUT `/keys/:id/invalidate`
+Markiert einen Key dauerhaft als ungültig. Ungültige Keys werden nicht mehr über `/keys/free` ausgegeben. Die Antwort enthält den aktualisierten Datensatz.
 
 ## Datenstruktur
 

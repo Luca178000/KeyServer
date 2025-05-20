@@ -309,4 +309,28 @@ describe('Key Server API', () => {
 
     await app.close();
   });
+
+  test('Dashboard invalidateKey flow via fetch', async () => {
+    const { app } = await createServer();
+
+    // Server auf zufälligem Port starten, um echte HTTP-Aufrufe zu simulieren
+    const address = await app.listen({ port: 0, host: '127.0.0.1' });
+    const port = app.server.address().port;
+
+    // Neuen Key anlegen
+    const create = await fetch(`http://127.0.0.1:${port}/keys`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'FFFFF-FFFFF-FFFFF-FFFFF-00002' })
+    });
+    const created = (await create.json())[0];
+
+    // Ablauf wie im Dashboard: Key als ungültig markieren
+    const inv = await fetch(`http://127.0.0.1:${port}/keys/${created.id}/invalidate`, { method: 'PUT' });
+    const data = await inv.json();
+
+    expect(data.invalid).toBe(true);
+
+    await app.close();
+  });
 });

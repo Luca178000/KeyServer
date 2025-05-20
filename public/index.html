@@ -69,6 +69,15 @@
   </section>
 
   <section>
+    <h2>Key ungültig</h2>
+    <form id="invalidateForm">
+      <input type="number" id="invalidateId" placeholder="ID" required />
+      <button type="submit">Key ungültig</button>
+    </form>
+    <pre id="invalidateResult"></pre>
+  </section>
+
+  <section>
     <h2>Log</h2>
     <pre id="historyLog"></pre>
   </section>
@@ -172,10 +181,28 @@
       return data;
     }
 
+    // Markiert einen Key dauerhaft als ungültig
+    async function invalidateKey(id) {
+      const res = await fetch(`/keys/${id}/invalidate`, { method: 'PUT' });
+      const data = await res.json();
+      document.getElementById('invalidateResult').textContent = JSON.stringify(data, null, 2);
+      updateStats();
+      loadFreeList();
+      loadActiveList();
+      showHistory(id);
+      return data;
+    }
+
     document.getElementById('releaseForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('releaseId').value;
       await releaseKey(id);
+    });
+
+    document.getElementById('invalidateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('invalidateId').value;
+      await invalidateKey(id);
     });
 
     document.addEventListener('DOMContentLoaded', () => {

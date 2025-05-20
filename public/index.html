@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <title>Key Server Dashboard</title>
-  <style>
-    body { font-family: sans-serif; max-width: 800px; margin: auto; }
-    section { margin-bottom: 1.5em; }
-    pre { background: #f0f0f0; padding: 0.5em; overflow: auto; }
-  </style>
+  <!-- Stylesheet für das Dashboard -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Dashboard mit verschiedenen Abschnitten -->
   <h1>Key Server Dashboard</h1>
 
   <section>
+  <!-- Abschnitt: Statistik -->
     <h2>Statistik</h2>
     <div>Freie Keys: <span id="freeCount">0</span></div>
     <div>Benutzte Keys: <span id="usedCount">0</span></div>
   </section>
 
   <section>
+  <!-- Abschnitt: Übersicht alle Keys -->
     <h2>Alle Keys</h2>
     <label><input type="checkbox" id="filterInUse" /> nur benutzte Keys</label>
     <input type="text" id="filterAssignedTo" placeholder="Zugewiesen an" />
@@ -27,16 +27,19 @@
   </section>
 
   <section>
+  <!-- Abschnitt: Liste freie Keys -->
     <h2>Freie Keys</h2>
     <pre id="listFree"></pre>
   </section>
 
   <section>
+  <!-- Abschnitt: Liste aktive Keys -->
     <h2>Aktive Keys</h2>
     <pre id="listActive"></pre>
   </section>
 
   <section>
+  <!-- Abschnitt: Key hinzufügen -->
     <h2>Neuen Key hinzufügen</h2>
     <form id="addKeyForm">
       <textarea id="newKey" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" required></textarea>
@@ -46,12 +49,14 @@
   </section>
 
   <section>
+  <!-- Abschnitt: Freien Key abrufen -->
     <h2>Freien Key abrufen</h2>
     <button id="getFreeKey">Abrufen</button>
     <pre id="freeKey"></pre>
   </section>
 
   <section>
+  <!-- Abschnitt: Key als benutzt markieren -->
     <h2>Key als benutzt markieren</h2>
     <form id="markInUseForm">
       <input type="number" id="keyId" placeholder="ID" required />
@@ -62,6 +67,7 @@
   </section>
 
   <section>
+  <!-- Abschnitt: Key freigeben -->
     <h2>Key freigeben</h2>
     <form id="releaseForm">
       <input type="number" id="releaseId" placeholder="ID" required />
@@ -71,6 +77,7 @@
   </section>
 
   <section>
+  <!-- Abschnitt: Key ungültig markieren -->
     <h2>Key ungültig markieren</h2>
     <form id="invalidateForm">
       <input type="number" id="invalidateId" placeholder="ID" required />
@@ -80,6 +87,7 @@
   </section>
 
   <section>
+  <!-- Abschnitt: Key löschen -->
     <h2>Key l\xC3\xB6schen</h2>
     <form id="deleteForm">
       <input type="number" id="deleteId" placeholder="ID" required />
@@ -89,6 +97,7 @@
   </section>
 
   <section>
+  <!-- Abschnitt: Log anzeigen -->
     <h2>Log</h2>
     <pre id="historyLog"></pre>
   </section>

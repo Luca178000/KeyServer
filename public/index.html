@@ -10,12 +10,16 @@
   <header class="container">
     <h1>Key Server Dashboard</h1>
 
-    <!-- Navigationsleiste für die einzelnen Tabs -->
-    <nav class="tabs">
-      <button data-tab="overview">Übersicht</button>
-      <button data-tab="actions">Aktionen</button>
-      <button data-tab="history">Historie</button>
-    </nav>
+    <div class="toolbar">
+      <!-- Navigationsleiste für die einzelnen Tabs -->
+      <nav class="tabs">
+        <button data-tab="overview">Übersicht</button>
+        <button data-tab="actions">Aktionen</button>
+        <button data-tab="history">Historie</button>
+      </nav>
+      <!-- Schalter für Dark-/Lightmode -->
+      <button id="themeToggle" aria-label="Design wechseln">🌙</button>
+    </div>
   </header>
 
   <main class="container">
@@ -47,7 +51,7 @@
       <label><input type="checkbox" id="filterInUse"> nur benutzte Keys</label>
       <input type="text" id="filterAssignedTo" placeholder="Zugewiesen an">
       <button id="loadKeys">Laden</button>
-      <pre id="allKeys"></pre>
+      <div id="allKeys" class="result-box"></div>
     </section>
 
     <section>
@@ -56,13 +60,13 @@
         <textarea id="newKey" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" required></textarea>
         <button type="submit">Hinzufügen</button>
       </form>
-      <pre id="addKeyResult"></pre>
+      <div id="addKeyResult" class="result-box"></div>
     </section>
 
     <section>
       <h2>Freien Key abrufen</h2>
       <button id="getFreeKey">Abrufen</button>
-      <pre id="freeKey"></pre>
+      <div id="freeKey" class="result-box"></div>
     </section>
 
     <section>
@@ -72,7 +76,7 @@
         <input type="text" id="assignedTo" placeholder="Zugewiesen an">
         <button type="submit">Markieren</button>
       </form>
-      <pre id="inUseResult"></pre>
+      <div id="inUseResult" class="result-box"></div>
     </section>
 
     <section>
@@ -81,7 +85,7 @@
         <input type="number" id="releaseId" placeholder="ID" required>
         <button type="submit">Freigeben</button>
       </form>
-      <pre id="releaseResult"></pre>
+      <div id="releaseResult" class="result-box"></div>
     </section>
 
     <section>
@@ -90,7 +94,7 @@
         <input type="number" id="invalidateId" placeholder="ID" required>
         <button type="submit">Key ungültig</button>
       </form>
-      <pre id="invalidateResult"></pre>
+      <div id="invalidateResult" class="result-box"></div>
     </section>
 
     <section>
@@ -99,7 +103,7 @@
         <input type="number" id="deleteId" placeholder="ID" required>
         <button type="submit">Löschen</button>
       </form>
-      <pre id="deleteResult"></pre>
+      <div id="deleteResult" class="result-box"></div>
     </section>
   </div>
 
@@ -107,19 +111,49 @@
   <div id="history" class="tab-content">
     <section>
       <h2>Log</h2>
-      <pre id="historyLog"></pre>
+      <div id="historyLog" class="result-box" style="white-space: pre-wrap;"></div>
     </section>
   </div>
 
   </main>
 
   <script>
+    // Wechsel zwischen hellem und dunklem Design
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+    });
+
     // Erstellt einen Button für die Key-Aktionen
     function createActionButton(text, handler) {
       const btn = document.createElement('button');
       btn.textContent = text;
       btn.addEventListener('click', handler);
       return btn;
+    }
+
+    // Zeigt ein JSON-Objekt formatiert innerhalb einer Ergebnisbox an
+    function displayJson(id, obj) {
+      const box = document.getElementById(id);
+      box.textContent = JSON.stringify(obj, null, 2);
+    }
+
+    // Stellt einen einzelnen Key mit Copy-Button dar
+    function showFreeKey(data) {
+      const box = document.getElementById('freeKey');
+      box.innerHTML = '';
+      if (!data || !data.key) return;
+
+      const span = document.createElement('span');
+      span.textContent = data.key;
+
+      const copy = document.createElement('button');
+      copy.textContent = 'Kopieren';
+      copy.addEventListener('click', () => {
+        navigator.clipboard.writeText(data.key).catch(() => {});
+      });
+
+      box.appendChild(span);
+      box.appendChild(copy);
     }
 
     // Markiert einen Key als benutzt
@@ -130,7 +164,7 @@
         body: JSON.stringify({ assignedTo })
       });
       const data = await res.json();
-      document.getElementById('inUseResult').textContent = JSON.stringify(data, null, 2);
+      displayJson('inUseResult', data);
       updateStats();
       loadFreeList();
       loadActiveList();
@@ -212,7 +246,7 @@
       if (!id) return;
       const res = await fetch(`/keys/${id}/history`);
       const hist = await res.json();
-      document.getElementById('historyLog').textContent = JSON.stringify(hist, null, 2);
+      displayJson('historyLog', hist);
     }
 
     document.getElementById('loadKeys').addEventListener('click', async () => {
@@ -225,7 +259,7 @@
 
       const res = await fetch('/keys' + query);
       const data = await res.json();
-      document.getElementById('allKeys').textContent = JSON.stringify(data, null, 2);
+      displayJson('allKeys', data);
       updateStats();
       loadFreeList();
       loadActiveList();
@@ -243,7 +277,7 @@
       });
 
       const data = await res.json();
-      document.getElementById('addKeyResult').textContent = JSON.stringify(data, null, 2);
+      displayJson('addKeyResult', data);
       updateStats();
       loadFreeList();
       loadActiveList();
@@ -253,7 +287,7 @@
     document.getElementById('getFreeKey').addEventListener('click', async () => {
       const res = await fetch('/keys/free');
       const data = await res.json();
-      document.getElementById('freeKey').textContent = JSON.stringify(data, null, 2);
+      showFreeKey(data);
       updateStats();
       loadFreeList();
       loadActiveList();
@@ -270,7 +304,7 @@
     async function releaseKey(id) {
       const res = await fetch(`/keys/${id}/release`, { method: 'PUT' });
       const data = await res.json();
-      document.getElementById('releaseResult').textContent = JSON.stringify(data, null, 2);
+      displayJson('releaseResult', data);
       updateStats();
       loadFreeList();
       loadActiveList();
@@ -287,7 +321,7 @@
     async function invalidateKey(id) {
       const res = await fetch(`/keys/${id}/invalidate`, { method: 'PUT' });
       const data = await res.json();
-      document.getElementById('invalidateResult').textContent = JSON.stringify(data, null, 2);
+      displayJson('invalidateResult', data);
       updateStats();
       loadFreeList();
       loadActiveList();
@@ -304,7 +338,7 @@
     async function deleteKey(id) {
       const res = await fetch(`/keys/${id}`, { method: 'DELETE' });
       const data = await res.json();
-      document.getElementById('deleteResult').textContent = JSON.stringify(data, null, 2);
+      displayJson('deleteResult', data);
       updateStats();
       loadFreeList();
       loadActiveList();

@@ -23,6 +23,9 @@ Das Layout verwendet eine eigene CSS-Datei `public/style.css`, die dem Dashboard
 Die Oberfläche ist in mehrere Tabs aufgeteilt. Jeder Tab blendet die zugehörigen Abschnitte ein oder aus. Die Listen der Keys sind nun als vertikale Liste umgesetzt.
 Zu jedem Eintrag stehen Schaltflächen bereit, um den Key zu kopieren, zu löschen, freizugeben, als benutzt oder ungültig zu markieren sowie die Historie einzusehen.
 
+Neu ist ein Button oben rechts, der zwischen hellem und dunklem Design umschaltet. Die Farben werden dabei über CSS-Variablen angepasst.
+Antworten des Servers erscheinen in kleinen Ergebnisboxen direkt unter den Formularen. Beim Abrufen eines freien Keys wird zusätzlich ein Kopieren-Button angeboten.
+
 Zusätzlich gibt es nun in der Statistik einen Zähler für ungültige Keys.
 Ebenfalls im Dashboard vorhanden sind Filterfelder für die Gesamtübersicht.
 Mit einer Checkbox lassen sich nur aktuell benutzte Keys anzeigen. Über ein

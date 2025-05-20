@@ -37,9 +37,13 @@ Optionale Query-Parameter erlauben das Filtern der Ausgabe:
 Beide Parameter können kombiniert werden, z.B. `/keys?inUse=true&assignedTo=Max`.
 
 ### POST `/keys`
-Legt einen oder mehrere neue Keys an. Im Request-Body kann entweder ein einzelner
-Key unter dem Feld `key` oder eine Liste unter `keys` übergeben werden. Jeder
-Eintrag muss dem Muster `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` entsprechen.
+Legt einen oder mehrere neue Keys an. Der Request-Body muss ein JSON-Objekt
+sein. Es werden zwei Formate akzeptiert:
+
+1. **Ein einzelner Key** im Feld `key`
+2. **Mehrere Keys** als Array im Feld `keys`
+
+Jeder Eintrag muss dem Muster `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` entsprechen.
 
 Beispiel f\xc3\bcr einen einzelnen Key:
 ```json
@@ -51,7 +55,9 @@ Und f\xc3\bcr mehrere Keys:
 { "keys": ["AAAAA-BBBBB-CCCCC-DDDDD-EEEEE", "11111-22222-33333-44444-55555"] }
 ```
 
-Die Antwort enth\xc3\a4lt stets ein Array mit den erzeugten Key-Objekten.
+Damit lassen sich mehrere Keys in einem einzigen Request \u00fcbermitteln. Die
+Antwort enth\u00e4lt unabh\u00e4ngig vom Eingabeformat stets ein Array der erzeugten
+Key-Objekte.
 
 ### GET `/keys/free`
 Liefert den ersten verfügbaren Key (ein Key mit `inUse=false` und `invalid=false`). Gibt einen 404-Statuscode zurück, wenn keiner verfügbar ist.

@@ -119,6 +119,7 @@ describe('Telegram Integration', () => {
     delete process.env.TELEGRAM_CHAT_ID;
   });
 
+
   test('Telegram-Nachricht enthält nur die Zahl freier Keys', async () => {
     process.env.TELEGRAM_BOT_TOKEN = 'T';
     process.env.TELEGRAM_CHAT_ID = 'C';
@@ -138,4 +139,5 @@ describe('Telegram Integration', () => {
     delete process.env.TELEGRAM_BOT_TOKEN;
     delete process.env.TELEGRAM_CHAT_ID;
   });
+
 });

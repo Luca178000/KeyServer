@@ -53,8 +53,11 @@ async function buildServer(options = {}) {
           .sendTelegramMessage(
             telegramToken,
             telegramChatId,
+
             // Die Nachricht nennt nur noch die verbleibenden freien Keys
             `Warnung: Nur noch ${free} freie Keys. ` +
+
+  
               'Zum Dashboard: http://localhost:3000/'
           )
           .catch(() => {});

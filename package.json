@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "fastify": "^4.22.2",
-    "@fastify/static": "^7.0.0"
+    "@fastify/static": "^7.0.0",
+    "pino": "^8.17.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",

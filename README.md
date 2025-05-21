@@ -167,6 +167,16 @@ eines freien Keys, das Markieren als benutzt, das Freigeben sowie das Löschen
 eines Eintrags. Die Log-Ausgaben erscheinen auf der Konsole und können zur
 Nachverfolgung der Vorgänge genutzt werden.
 
+Soll zusätzlich eine Logdatei geführt werden, kann beim Start ein Pfad
+übergeben werden. Dieser wird als erstes Argument an `index.js` gereicht und
+unter dem Optionsnamen `logFile` verwendet. Beispiel:
+
+```bash
+npm start -- ./server.log
+```
+
+Damit schreibt Pino alle Logeinträge in die angegebene Datei.
+
 ## Tests
 
 Um sicherzustellen, dass alle Funktionen weiterhin korrekt arbeiten, existieren Jest-Tests im Verzeichnis `__tests__`. Diese decken sämtliche REST-Endpunkte sowie das Dashboard ab. Die Ausführung inklusive Testabdeckung erfolgt mit:

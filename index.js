@@ -4,7 +4,9 @@ const buildServer = require('./server');
 // beendet den Prozess bei unerwarteten Fehlern.
 const start = async () => {
   try {
-    const app = await buildServer({ logger: true });
+    // Optionaler Pfad für eine Logdatei wird als erstes Argument erwartet
+    const logFile = process.argv[2];
+    const app = await buildServer({ logger: true, logFile });
     await app.listen({ port: 3000, host: '0.0.0.0' });
     console.log('Server läuft auf Port 3000');
   } catch (err) {

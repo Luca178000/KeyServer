@@ -143,6 +143,17 @@ describe('Dashboard', () => {
     expect(dom.window.document.getElementById('themeToggle').textContent).toContain('☀️');
   });
 
+  test('applyTheme setzt die Hintergrundvariable im Darkmode', async () => {
+    const html = await fs.readFile(path.join(__dirname, '../public/index.html'), 'utf8');
+    const { JSDOM } = require('../test-utils/fake-dom');
+    const dom = new JSDOM(html, { runScripts: 'dangerously' });
+
+    dom.window.applyTheme('dark');
+
+    expect(dom.window.document.body.style.getPropertyValue('--bg'))
+      .toBe('hsl(222 28% 10%)');
+  });
+
   test('showFreeKey erzeugt einen Kopieren-Button', async () => {
     const html = await fs.readFile(path.join(__dirname, '../public/index.html'), 'utf8');
     const { JSDOM } = require('../test-utils/fake-dom');

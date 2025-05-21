@@ -18,8 +18,8 @@ async function buildServer(options = {}) {
   const app = fastify({ logger: destination ? { stream: destination } : logger });
 
   // Token und Chat-ID für Telegram aus Umgebungsvariablen auslesen
-  const telegramToken = 7968951775:AAGGWxr-_qcToAJGCrUUrs-2q4m_tLHen4U;
-  const telegramChatId = 7290107051;
+  const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+  const telegramChatId = process.env.TELEGRAM_CHAT_ID;
   const THRESHOLD = 20;
 
   // Prüft die Zahl freier Keys und verschickt ggf. eine Warnung

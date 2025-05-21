@@ -1,6 +1,16 @@
 # KeyServer
 
-Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwaltet. 
+Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwaltet.
+
+## Projektstruktur
+
+- `index.js` – Startpunkt des Servers.
+- `server.js` – Hauptlogik und REST-Endpunkte.
+- `public/` – Dashboard (HTML, CSS, JS).
+- `__tests__/` – Jest-Tests.
+- `test-utils/` – Hilfsfunktionen für DOM-Tests.
+
+Die Datei `db.json` wird beim Start angelegt und speichert die Daten.
 
 ## Installation
 

@@ -126,7 +126,7 @@ async function buildServer(options = {}) {
     };
     freeKey.history.push(logEntry);
     await saveData();
-    return freeKey;
+    return freeKey.key;
   });
 
   // Gibt eine Liste aller aktuell freien Keys zurück

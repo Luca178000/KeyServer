@@ -48,6 +48,22 @@ async function buildServer(options = {}) {
 
     for (const limit of THRESHOLDS) {
       if (free < limit && limit < lastWarned) {
+        // ***
+        // Bevor wir eine Telegram-Nachricht verschicken, prüfen wir, ob wir
+        // uns gerade im Testbetrieb befinden. Standardmäßig sollen während der
+        // Jest-Tests keine Nachrichten versendet werden, um unnötige Aufrufe
+        // und Abhängigkeiten zu vermeiden. Nur wenn explizit die Variable
+        // SEND_TELEGRAM_DURING_TESTS auf "true" gesetzt ist, wird der Versand
+        // zugelassen. Andernfalls kehren wir einfach zurück und überspringen
+        // den Aufruf von sendTelegramMessage.
+        // ***
+        if (
+          process.env.NODE_ENV === 'test' &&
+          process.env.SEND_TELEGRAM_DURING_TESTS !== 'true'
+        ) {
+          return;
+        }
+
         // Fehler beim Senden dürfen den Server nicht stoppen
         telegram
           .sendTelegramMessage(
@@ -57,7 +73,7 @@ async function buildServer(options = {}) {
             // Die Nachricht nennt nur noch die verbleibenden freien Keys
             `Warnung: Nur noch ${free} freie Keys. ` +
 
-  
+
               'Zum Dashboard: http://localhost:3000/'
           )
           .catch(() => {});

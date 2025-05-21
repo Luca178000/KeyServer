@@ -48,6 +48,7 @@ describe('Telegram Integration', () => {
   test('Server benachrichtigt nur einmal unter zwanzig Keys', async () => {
     process.env.TELEGRAM_BOT_TOKEN = 'T';
     process.env.TELEGRAM_CHAT_ID = 'C';
+    process.env.SEND_TELEGRAM_DURING_TESTS = 'true';
     // Wir überwachen sendTelegramMessage, um den Aufruf zu zählen
     const spy = jest
       .spyOn(telegram, 'sendTelegramMessage')
@@ -61,11 +62,13 @@ describe('Telegram Integration', () => {
     spy.mockRestore();
     delete process.env.TELEGRAM_BOT_TOKEN;
     delete process.env.TELEGRAM_CHAT_ID;
+    delete process.env.SEND_TELEGRAM_DURING_TESTS;
   });
 
   test('Server meldet erneut bei weniger als zehn Keys', async () => {
     process.env.TELEGRAM_BOT_TOKEN = 'T';
     process.env.TELEGRAM_CHAT_ID = 'C';
+    process.env.SEND_TELEGRAM_DURING_TESTS = 'true';
     const spy = jest
       .spyOn(telegram, 'sendTelegramMessage')
       .mockResolvedValue({ ok: true });
@@ -79,11 +82,13 @@ describe('Telegram Integration', () => {
     spy.mockRestore();
     delete process.env.TELEGRAM_BOT_TOKEN;
     delete process.env.TELEGRAM_CHAT_ID;
+    delete process.env.SEND_TELEGRAM_DURING_TESTS;
   });
 
   test('Warnung bereits beim Start bei zu wenigen Keys', async () => {
     process.env.TELEGRAM_BOT_TOKEN = 'T';
     process.env.TELEGRAM_CHAT_ID = 'C';
+    process.env.SEND_TELEGRAM_DURING_TESTS = 'true';
     const spy = jest
       .spyOn(telegram, 'sendTelegramMessage')
       .mockResolvedValue({ ok: true });
@@ -96,11 +101,13 @@ describe('Telegram Integration', () => {
     spy.mockRestore();
     delete process.env.TELEGRAM_BOT_TOKEN;
     delete process.env.TELEGRAM_CHAT_ID;
+    delete process.env.SEND_TELEGRAM_DURING_TESTS;
   });
 
   test('Warnstatus bleibt nach Neustart erhalten', async () => {
     process.env.TELEGRAM_BOT_TOKEN = 'T';
     process.env.TELEGRAM_CHAT_ID = 'C';
+    process.env.SEND_TELEGRAM_DURING_TESTS = 'true';
     const spy = jest
       .spyOn(telegram, 'sendTelegramMessage')
       .mockResolvedValue({ ok: true });
@@ -117,12 +124,14 @@ describe('Telegram Integration', () => {
     spy.mockRestore();
     delete process.env.TELEGRAM_BOT_TOKEN;
     delete process.env.TELEGRAM_CHAT_ID;
+    delete process.env.SEND_TELEGRAM_DURING_TESTS;
   });
 
 
   test('Telegram-Nachricht enthält nur die Zahl freier Keys', async () => {
     process.env.TELEGRAM_BOT_TOKEN = 'T';
     process.env.TELEGRAM_CHAT_ID = 'C';
+    process.env.SEND_TELEGRAM_DURING_TESTS = 'true';
     const spy = jest
       .spyOn(telegram, 'sendTelegramMessage')
       .mockResolvedValue({ ok: true });
@@ -134,6 +143,23 @@ describe('Telegram Integration', () => {
       'C',
       'Warnung: Nur noch 18 freie Keys. Zum Dashboard: http://localhost:3000/'
     );
+    await app.close();
+    spy.mockRestore();
+    delete process.env.TELEGRAM_BOT_TOKEN;
+    delete process.env.TELEGRAM_CHAT_ID;
+    delete process.env.SEND_TELEGRAM_DURING_TESTS;
+  });
+
+  test('verschickt im Testmodus keine Nachricht ohne Freigabe', async () => {
+    process.env.TELEGRAM_BOT_TOKEN = 'T';
+    process.env.TELEGRAM_CHAT_ID = 'C';
+    const spy = jest
+      .spyOn(telegram, 'sendTelegramMessage')
+      .mockResolvedValue({ ok: true });
+
+    const { app } = await createServerWithKeys(19);
+    await app.inject({ method: 'PUT', url: '/keys/AAAAA-BBBBB-CCCCC-DDDDD-00000/inuse', payload: {} });
+    expect(spy).not.toHaveBeenCalled();
     await app.close();
     spy.mockRestore();
     delete process.env.TELEGRAM_BOT_TOKEN;

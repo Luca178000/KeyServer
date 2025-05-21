@@ -2,11 +2,8 @@ const fs = require('fs/promises');
 const path = require('path');
 const os = require('os');
 
-jest.mock('../telegram', () => ({
-  sendTelegramMessage: jest.fn()
-}));
-
-const { sendTelegramMessage } = require('../telegram');
+const telegram = require('../telegram');
+const { sendTelegramMessage } = telegram;
 const buildServer = require('../server');
 
 async function createServerWithKeys(count) {
@@ -31,7 +28,8 @@ async function createServerWithKeys(count) {
 
 describe('Telegram Integration', () => {
   beforeEach(() => {
-    sendTelegramMessage.mockClear();
+    // Setzt zuvor verwendete Spies und Mocks zurück
+    jest.restoreAllMocks();
   });
 
   test('sendTelegramMessage ruft Telegram API auf', async () => {
@@ -50,10 +48,16 @@ describe('Telegram Integration', () => {
   test('Server benachrichtigt bei wenig freien Keys', async () => {
     process.env.TELEGRAM_BOT_TOKEN = 'T';
     process.env.TELEGRAM_CHAT_ID = 'C';
+    // Wir überwachen sendTelegramMessage, um den Aufruf zu zählen
+    const spy = jest
+      .spyOn(telegram, 'sendTelegramMessage')
+      .mockResolvedValue({ ok: true });
+
     const { app } = await createServerWithKeys(19);
     await app.inject({ method: 'PUT', url: '/keys/1/inuse', payload: {} });
-    expect(sendTelegramMessage).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
     await app.close();
+    spy.mockRestore();
     delete process.env.TELEGRAM_BOT_TOKEN;
     delete process.env.TELEGRAM_CHAT_ID;
   });

@@ -154,6 +154,17 @@ section h2 {
   font-size: 1.1rem;
 }
 
+/* Container für freie und aktivierte Keys nebeneinander */
+.key-lists {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.key-lists section {
+  flex: 1;
+  min-width: 240px;
+}
+
 /* Flex-Listen */
 .key-list,
 .key-actions {

@@ -42,6 +42,12 @@ describe('Dashboard', () => {
     expect(res.payload).toContain('class="result-box"');
   });
 
+  test('ordnet die Listen nebeneinander an', async () => {
+    const { app } = await createServer();
+    const res = await app.inject('/');
+    expect(res.payload).toContain('class="key-lists"');
+  });
+
 
   test('nutzt Icon-Buttons', async () => {
     const { app } = await createServer();

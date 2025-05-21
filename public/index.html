@@ -1,405 +1,289 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Key Server Dashboard</title>
-  <!-- Einbindung des Stylesheets -->
-  <link rel="stylesheet" href="style.css">
+  <title>Key-Server Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="container">
-    <h1>Key Server Dashboard</h1>
 
-    <div class="toolbar">
-      <!-- Navigationsleiste für die einzelnen Tabs -->
-      <nav class="tabs">
-        <button data-tab="overview">Übersicht</button>
-        <button data-tab="actions">Aktionen</button>
-        <button data-tab="history">Historie</button>
-      </nav>
-      <!-- Schalter für Dark-/Lightmode -->
-      <button id="themeToggle" aria-label="Design wechseln">🌙</button>
+  <!-- ───────────────── HEADER ───────────────── -->
+  <header>
+    <div style="display:flex;align-items:center;gap:.6rem">
+      <button id="sidebarToggle" aria-label="Menü öffnen">☰</button>
+      <h1>Key-Server Dashboard</h1>
     </div>
+    <button id="themeToggle" aria-label="Design wechseln">🌙</button>
   </header>
 
-  <main class="container">
+  <!-- ───────────────── SIDEBAR / TABS ───────────────── -->
+  <aside id="sidebar">
+    <nav class="tabs">
+      <button data-tab="overview" class="active">Übersicht</button>
+      <button data-tab="actions">Aktionen</button>
+      <button data-tab="history">Historie</button>
+    </nav>
+  </aside>
 
-  <!-- Tab: Statistik und Listen -->
-  <div id="overview" class="tab-content">
-    <section>
-      <h2>Statistik</h2>
-      <div>Freie Keys: <span id="freeCount">0</span></div>
-      <div>Benutzte Keys: <span id="usedCount">0</span></div>
-      <div>Ungültige Keys: <span id="invalidCount">0</span></div>
-    </section>
+  <!-- ───────────────── MAIN CONTENT ───────────────── -->
+  <main>
 
-    <section>
-      <h2>Freie Keys</h2>
-      <div id="listFree" class="key-list"></div>
-    </section>
+    <!-- TAB ▸ Übersicht -->
+    <div id="overview" class="tab-content">
+      <section>
+        <h2>Statistik</h2>
+        <div>Freie Keys: <strong id="freeCount">0</strong></div>
+        <div>Benutzte Keys: <strong id="usedCount">0</strong></div>
+        <div>Ungültige Keys: <strong id="invalidCount">0</strong></div>
+      </section>
 
-    <section>
-      <h2>Aktivierte Keys</h2>
-      <div id="listActive" class="key-list"></div>
-    </section>
-  </div>
+      <section>
+        <h2>Freie Keys</h2>
+        <div id="listFree" class="key-list"></div>
+      </section>
 
-  <!-- Tab: Aktionen für einzelne Keys -->
-  <div id="actions" class="tab-content">
-    <section>
-      <h2>Alle Keys</h2>
-      <label><input type="checkbox" id="filterInUse"> nur benutzte Keys</label>
-      <input type="text" id="filterAssignedTo" placeholder="Zugewiesen an">
-      <button id="loadKeys">Laden</button>
-      <div id="allKeys" class="result-box"></div>
-    </section>
+      <section>
+        <h2>Aktivierte Keys</h2>
+        <div id="listActive" class="key-list"></div>
+      </section>
+    </div>
 
-    <section>
-      <h2>Neuen Key hinzufügen</h2>
-      <form id="addKeyForm">
-        <textarea id="newKey" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" required></textarea>
-        <button type="submit">Hinzufügen</button>
-      </form>
-      <div id="addKeyResult" class="result-box"></div>
-    </section>
+    <!-- TAB ▸ Aktionen -->
+    <div id="actions" class="tab-content" style="display:none">
+      <section>
+        <h2>Alle Keys</h2>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <label><input type="checkbox" id="filterInUse"> nur benutzte</label>
+          <input type="text" id="filterAssignedTo" placeholder="Zugewiesen an">
+          <button id="loadKeys">Laden</button>
+        </div>
+        <div id="allKeys" class="result-box"></div>
+      </section>
 
-    <section>
-      <h2>Freien Key abrufen</h2>
-      <button id="getFreeKey">Abrufen</button>
-      <div id="freeKey" class="result-box"></div>
-    </section>
+      <section>
+        <h2>Neuen Key hinzufügen</h2>
+        <form id="addKeyForm">
+          <textarea id="newKey" rows="3" placeholder="XXXXX-XXXXX-XXXXX-XXXXX"></textarea>
+          <button type="submit">Hinzufügen</button>
+        </form>
+        <div id="addKeyResult" class="result-box"></div>
+      </section>
 
-    <section>
-      <h2>Key als benutzt markieren</h2>
-      <form id="markInUseForm">
-        <input type="number" id="keyId" placeholder="ID" required>
-        <input type="text" id="assignedTo" placeholder="Zugewiesen an">
-        <button type="submit">Markieren</button>
-      </form>
-      <div id="inUseResult" class="result-box"></div>
-    </section>
+      <section>
+        <h2>Freien Key abrufen</h2>
+        <button id="getFreeKey">Abrufen</button>
+        <div id="freeKey" class="result-box"></div>
+      </section>
 
-    <section>
-      <h2>Key freigeben</h2>
-      <form id="releaseForm">
-        <input type="number" id="releaseId" placeholder="ID" required>
-        <button type="submit">Freigeben</button>
-      </form>
-      <div id="releaseResult" class="result-box"></div>
-    </section>
+      <section>
+        <h2>Key als benutzt markieren</h2>
+        <form id="markInUseForm">
+          <input type="number" id="keyId" placeholder="ID">
+          <input type="text" id="assignedTo" placeholder="Zugewiesen an">
+          <button type="submit">Markieren</button>
+        </form>
+        <div id="inUseResult" class="result-box"></div>
+      </section>
 
-    <section>
-      <h2>Key ungültig markieren</h2>
-      <form id="invalidateForm">
-        <input type="number" id="invalidateId" placeholder="ID" required>
-        <button type="submit">Key ungültig</button>
-      </form>
-      <div id="invalidateResult" class="result-box"></div>
-    </section>
+      <section>
+        <h2>Key freigeben</h2>
+        <form id="releaseForm">
+          <input type="number" id="releaseId" placeholder="ID">
+          <button type="submit">Freigeben</button>
+        </form>
+        <div id="releaseResult" class="result-box"></div>
+      </section>
 
-    <section>
-      <h2>Key löschen</h2>
-      <form id="deleteForm">
-        <input type="number" id="deleteId" placeholder="ID" required>
-        <button type="submit">Löschen</button>
-      </form>
-      <div id="deleteResult" class="result-box"></div>
-    </section>
-  </div>
+      <section>
+        <h2>Key ungültig markieren</h2>
+        <form id="invalidateForm">
+          <input type="number" id="invalidateId" placeholder="ID">
+          <button type="submit">Ungültig</button>
+        </form>
+        <div id="invalidateResult" class="result-box"></div>
+      </section>
 
-  <!-- Tab: Anzeige der Historie -->
-  <div id="history" class="tab-content">
-    <section>
-      <h2>Log</h2>
-      <div id="historyLog" class="result-box" style="white-space: pre-wrap;"></div>
-    </section>
-  </div>
+      <section>
+        <h2>Key löschen</h2>
+        <form id="deleteForm">
+          <input type="number" id="deleteId" placeholder="ID">
+          <button type="submit">Löschen</button>
+        </form>
+        <div id="deleteResult" class="result-box"></div>
+      </section>
+    </div>
+
+    <!-- TAB ▸ Historie -->
+    <div id="history" class="tab-content" style="display:none">
+      <section>
+        <h2>Log</h2>
+        <div id="historyLog" class="result-box" style="white-space:pre-wrap;"></div>
+      </section>
+    </div>
 
   </main>
 
+  <!-- ───────────────── SCRIPTS ───────────────── -->
   <script>
+  /* ----------------- Theme & Sidebar ----------------- */
+  const themeToggle   = document.getElementById('themeToggle');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar       = document.getElementById('sidebar');
 
-    /*
-     * Schaltet zwischen hellem und dunklem Design um. Die Auswahl
-     * wird in localStorage gesichert und beim Laden wiederhergestellt.
-     */
-    const themeToggle = document.getElementById('themeToggle');
+  function applyTheme(mode){
+    document.body.classList.remove('light','dark');
+    if (mode) document.body.classList.add(mode);
+    themeToggle.textContent = mode === 'dark' ? '☀️' : '🌙';
+  }
 
-    function applyTheme(mode) {
-      document.body.classList.remove('light', 'dark');
-      if (mode) document.body.classList.add(mode);
-    }
+  themeToggle.addEventListener('click',()=>{
+    const now  = document.body.classList.contains('dark') ? 'dark'
+                : document.body.classList.contains('light') ? 'light' : null;
+    const next = now === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem('theme', next);
+  });
 
-    themeToggle.addEventListener('click', () => {
-      const current = document.body.classList.contains('dark') ? 'dark'
-        : document.body.classList.contains('light') ? 'light' : null;
-      const next = current === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      try { localStorage.setItem('theme', next); } catch (e) {}
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('hidden');
+  });
+
+  /* ----------------- Tab Navigation ----------------- */
+  document.querySelectorAll('nav.tabs button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+      document.getElementById(tab).style.display='block';
+
+      /* Sidebar auto-close on mobile */
+      if (window.innerWidth < 850) sidebar.classList.add('hidden');
     });
+  });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const saved = localStorage.getItem('theme');
-      if (saved) applyTheme(saved);
+  /* ----------------- Helper ----------------- */
+  function displayJson(id,obj){
+    const box=document.getElementById(id);
+    box.innerHTML='';
+    const pre=document.createElement('pre');
+    pre.textContent=JSON.stringify(obj,null,2);
+    box.appendChild(pre);
+  }
+
+  function createActionButton(icon,cls,cb,title){
+    const b=document.createElement('button');
+    b.className='icon-button '+cls; b.textContent=icon;
+    if(title){b.title=title; b.setAttribute('aria-label',title);}
+    b.onclick=cb; return b;
+  }
+
+  function showFreeKey(txt){
+    const box=document.getElementById('freeKey'); box.innerHTML='';
+    if(!txt) return;
+    const span=document.createElement('span'); span.textContent=txt;
+    const copy=createActionButton('📋','icon-copy',()=>navigator.clipboard.writeText(txt),'Kopieren');
+    box.append(span,copy);
+  }
+
+  /* ----------------- API Operations ----------------- */
+  async function updateStats(){
+    const res=await fetch('/keys'); const data=await res.json();
+    document.getElementById('freeCount').textContent = data.filter(k=>!k.inUse).length;
+    document.getElementById('usedCount').textContent = data.filter(k=>k.inUse).length;
+    document.getElementById('invalidCount').textContent = data.filter(k=>k.invalid).length;
+  }
+
+  async function renderList(elId,url){
+    const res=await fetch(url); const data=await res.json();
+    const el=document.getElementById(elId); el.innerHTML='';
+    data.sort((a,b)=>a.id-b.id).forEach(k=>{
+      const row=document.createElement('div'); row.className='key-row';
+      row.innerHTML=`<span>${k.id}: ${k.key}</span>`;
+      const acts=document.createElement('div'); acts.className='key-actions';
+
+      acts.append(
+        createActionButton('✔️','icon-use',()=>markKeyInUse(k.id, prompt('Zugewiesen an?')||''),'Benutzen'),
+        createActionButton('↩️','icon-release',()=>releaseKey(k.id),'Freigeben'),
+        createActionButton('🚫','icon-invalidate',()=>invalidateKey(k.id),'Ungültig'),
+        createActionButton('🗑️','icon-delete',()=>deleteKey(k.id),'Löschen'),
+        createActionButton('📋','icon-copy',()=>navigator.clipboard.writeText(k.key),'Kopieren'),
+        createActionButton('📜','icon-history',()=>{showHistory(k.id);document.querySelector('[data-tab="history"]').click();},'Historie')
+      );
+      row.appendChild(acts); el.appendChild(row);
     });
+  }
 
-    // Erstellt einen Symbol-Button für die Key-Aktionen
-    // title ist optional und liefert einen Tooltip sowie ein ARIA-Label
-    function createActionButton(icon, className, handler, title) {
+  async function loadFreeList(){ renderList('listFree','/keys/free/list'); }
+  async function loadActiveList(){ renderList('listActive','/keys/active/list'); }
 
-      const btn = document.createElement('button');
-      btn.className = 'icon-button ' + className;
-      btn.textContent = icon;
-      if (title) {
-        btn.title = title;
-        btn.setAttribute('aria-label', title);
-      }
-      btn.addEventListener('click', handler);
-      return btn;
-    }
+  async function markKeyInUse(id,assignedTo=''){
+    const r=await fetch(`/keys/${id}/inuse`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({assignedTo})});
+    const d=await r.json(); displayJson('inUseResult',d);
+    updateStats(); loadFreeList(); loadActiveList(); showHistory(id);
+  }
 
+  async function releaseKey(id){
+    const r=await fetch(`/keys/${id}/release`,{method:'PUT'}); const d=await r.json();
+    displayJson('releaseResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(id);
+  }
 
-    // Zeigt ein JSON-Objekt übersichtlich in einer Ergebnisbox an
-    function displayJson(id, obj) {
-      const box = document.getElementById(id);
-      box.innerHTML = '';
-      const pre = document.createElement('pre');
-      pre.textContent = JSON.stringify(obj, null, 2);
-      box.appendChild(pre);
+  async function invalidateKey(id){
+    const r=await fetch(`/keys/${id}/invalidate`,{method:'PUT'}); const d=await r.json();
+    displayJson('invalidateResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(id);
+  }
 
-    }
+  async function deleteKey(id){
+    const r=await fetch(`/keys/${id}`,{method:'DELETE'}); const d=await r.json();
+    displayJson('deleteResult',d); updateStats(); loadFreeList(); loadActiveList(); document.getElementById('historyLog').textContent='';
+  }
 
-    // Stellt einen einzelnen Key mit Copy-Button dar
-    function showFreeKey(keyStr) {
-      const box = document.getElementById('freeKey');
-      box.innerHTML = '';
-      if (!keyStr) return;
+  async function showHistory(id){
+    if(!id) return;
+    const r=await fetch(`/keys/${id}/history`); const h=await r.json();
+    displayJson('historyLog',h);
+  }
 
-      const span = document.createElement('span');
-      span.textContent = keyStr;
+  /* ----------------- Form Events ----------------- */
+  document.getElementById('loadKeys').onclick=async()=>{
+    const p=[];
+    if(document.getElementById('filterInUse').checked) p.push('inUse=true');
+    const as=document.getElementById('filterAssignedTo').value.trim();
+    if(as) p.push('assignedTo='+encodeURIComponent(as));
+    const r=await fetch('/keys'+(p.length?'?'+p.join('&'):'')); const d=await r.json();
+    displayJson('allKeys',d); updateStats(); loadFreeList(); loadActiveList();
+  };
 
-      const copy = document.createElement('button');
-      copy.textContent = 'Kopieren';
-      copy.addEventListener('click', () => {
-        navigator.clipboard.writeText(keyStr).catch(() => {});
-      });
+  document.getElementById('addKeyForm').onsubmit=async e=>{
+    e.preventDefault();
+    const raw=document.getElementById('newKey').value;
+    const keys=raw.split(/\r?\n/).map(k=>k.trim()).filter(Boolean);
+    const r=await fetch('/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keys})});
+    const d=await r.json(); displayJson('addKeyResult',d);
+    updateStats(); loadFreeList(); loadActiveList(); if(d.length) showHistory(d[0].id);
+  };
 
-      box.appendChild(span);
-      box.appendChild(copy);
-    }
+  document.getElementById('getFreeKey').onclick=async()=>{
+    const r=await fetch('/keys/free'); const t=await r.text();
+    showFreeKey(t); updateStats(); loadFreeList(); loadActiveList();
+  };
 
-    // Markiert einen Key als benutzt
-    async function markKeyInUse(id, assignedTo = '') {
-      const res = await fetch(`/keys/${id}/inuse`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assignedTo })
-      });
-      const data = await res.json();
-      displayJson('inUseResult', data);
-      updateStats();
-      loadFreeList();
-      loadActiveList();
-      showHistory(id);
-      return data;
-    }
+  document.getElementById('markInUseForm').onsubmit=e=>{
+    e.preventDefault();
+    markKeyInUse(document.getElementById('keyId').value,document.getElementById('assignedTo').value);
+  };
 
-    // Rendert die Keys mit zugehörigen Aktionsknöpfen untereinander
-    function renderList(targetId, data) {
-      const container = document.getElementById(targetId);
-      container.innerHTML = '';
-      data.sort((a, b) => a.id - b.id);
-      for (const entry of data) {
-        const row = document.createElement('div');
-        row.className = 'key-row';
+  document.getElementById('releaseForm').onsubmit=e=>{ e.preventDefault(); releaseKey(document.getElementById('releaseId').value); };
+  document.getElementById('invalidateForm').onsubmit=e=>{ e.preventDefault(); invalidateKey(document.getElementById('invalidateId').value); };
+  document.getElementById('deleteForm').onsubmit=e=>{ e.preventDefault(); deleteKey(document.getElementById('deleteId').value); };
 
-        const text = document.createElement('span');
-        text.textContent = `${entry.id}: ${entry.key}`;
-        row.appendChild(text);
-
-        const actions = document.createElement('div');
-        actions.className = 'key-actions';
-
-        actions.appendChild(createActionButton('✔️', 'icon-use', () => {
-          const assigned = prompt('Zugewiesen an?') || '';
-          markKeyInUse(entry.id, assigned);
-        }, 'Benutzen'));
-
-        actions.appendChild(createActionButton('↩️', 'icon-release', () => {
-          releaseKey(entry.id);
-        }, 'Freigeben'));
-
-        actions.appendChild(createActionButton('🚫', 'icon-invalidate', () => {
-          invalidateKey(entry.id);
-        }, 'Ungültig'));
-
-        actions.appendChild(createActionButton('🗑️', 'icon-delete', () => {
-          deleteKey(entry.id);
-        }, 'Löschen'));
-
-        actions.appendChild(createActionButton('📋', 'icon-copy', () => {
-          navigator.clipboard.writeText(entry.key).catch(() => {});
-        }, 'Kopieren'));
-
-        actions.appendChild(createActionButton('📜', 'icon-history', () => {
-          showHistory(entry.id);
-          document.querySelector('nav.tabs button[data-tab="history"]').click();
-        }, 'Historie'));
-
-        row.appendChild(actions);
-        container.appendChild(row);
-      }
-    }
-
-    async function updateStats() {
-      const res = await fetch('/keys');
-      const data = await res.json();
-      const free = data.filter(k => !k.inUse).length;
-      const used = data.filter(k => k.inUse).length;
-      const invalid = data.filter(k => k.invalid).length;
-      document.getElementById('freeCount').textContent = free;
-      document.getElementById('usedCount').textContent = used;
-      document.getElementById('invalidCount').textContent = invalid;
-    }
-
-    async function loadFreeList() {
-      const res = await fetch('/keys/free/list');
-      const data = await res.json();
-      renderList('listFree', data);
-    }
-
-    async function loadActiveList() {
-      const res = await fetch('/keys/active/list');
-      const data = await res.json();
-      renderList('listActive', data);
-    }
-
-    async function showHistory(id) {
-      if (!id) return;
-      const res = await fetch(`/keys/${id}/history`);
-      const hist = await res.json();
-      displayJson('historyLog', hist);
-    }
-
-    document.getElementById('loadKeys').addEventListener('click', async () => {
-      const params = [];
-      const inUseChecked = document.getElementById('filterInUse').checked;
-      if (inUseChecked) params.push('inUse=true');
-      const assigned = document.getElementById('filterAssignedTo').value.trim();
-      if (assigned) params.push('assignedTo=' + encodeURIComponent(assigned));
-      const query = params.length ? '?' + params.join('&') : '';
-
-      const res = await fetch('/keys' + query);
-      const data = await res.json();
-      displayJson('allKeys', data);
-      updateStats();
-      loadFreeList();
-      loadActiveList();
-    });
-
-    document.getElementById('addKeyForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const raw = document.getElementById('newKey').value;
-      const keys = raw.split(/\r?\n/).map(k => k.trim()).filter(Boolean);
-
-      const res = await fetch('/keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keys })
-      });
-
-      const data = await res.json();
-      displayJson('addKeyResult', data);
-      updateStats();
-      loadFreeList();
-      loadActiveList();
-      if (data.length > 0) showHistory(data[0].id);
-    });
-
-    document.getElementById('getFreeKey').addEventListener('click', async () => {
-      const res = await fetch('/keys/free');
-      const keyText = await res.text();
-      showFreeKey(keyText);
-      updateStats();
-      loadFreeList();
-      loadActiveList();
-    });
-
-    document.getElementById('markInUseForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('keyId').value;
-      const assignedTo = document.getElementById('assignedTo').value;
-      await markKeyInUse(id, assignedTo);
-    });
-
-    async function releaseKey(id) {
-      const res = await fetch(`/keys/${id}/release`, { method: 'PUT' });
-      const data = await res.json();
-      displayJson('releaseResult', data);
-      updateStats();
-      loadFreeList();
-      loadActiveList();
-      showHistory(id);
-      return data;
-    }
-
-    document.getElementById('releaseForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('releaseId').value;
-      await releaseKey(id);
-    });
-
-    async function invalidateKey(id) {
-      const res = await fetch(`/keys/${id}/invalidate`, { method: 'PUT' });
-      const data = await res.json();
-      displayJson('invalidateResult', data);
-      updateStats();
-      loadFreeList();
-      loadActiveList();
-      showHistory(id);
-      return data;
-    }
-
-    document.getElementById('invalidateForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('invalidateId').value;
-      await invalidateKey(id);
-    });
-
-    async function deleteKey(id) {
-      const res = await fetch(`/keys/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      displayJson('deleteResult', data);
-      updateStats();
-      loadFreeList();
-      loadActiveList();
-      document.getElementById('historyLog').textContent = '';
-      return data;
-    }
-
-    document.getElementById('deleteForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('deleteId').value;
-      await deleteKey(id);
-    });
-
-    // Tab-Umschaltung für die Navigation
-    document.querySelectorAll('nav.tabs button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tab = btn.getAttribute('data-tab');
-        document.querySelectorAll('.tab-content').forEach(c => {
-          c.style.display = 'none';
-        });
-        document.getElementById(tab).style.display = 'block';
-      });
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelector('nav.tabs button').click();
-      updateStats();
-      loadFreeList();
-      loadActiveList();
-    });
+  /* ----------------- Initial Load ----------------- */
+  document.addEventListener('DOMContentLoaded',()=>{
+    applyTheme(localStorage.getItem('theme'));
+    sidebar.classList.toggle('hidden', window.innerWidth < 850);  /* mobile default-closed */
+    updateStats(); loadFreeList(); loadActiveList();
+  });
   </script>
 </body>
 </html>

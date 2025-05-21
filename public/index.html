@@ -170,18 +170,18 @@
     }
 
     // Stellt einen einzelnen Key mit Copy-Button dar
-    function showFreeKey(data) {
+    function showFreeKey(keyStr) {
       const box = document.getElementById('freeKey');
       box.innerHTML = '';
-      if (!data || !data.key) return;
+      if (!keyStr) return;
 
       const span = document.createElement('span');
-      span.textContent = data.key;
+      span.textContent = keyStr;
 
       const copy = document.createElement('button');
       copy.textContent = 'Kopieren';
       copy.addEventListener('click', () => {
-        navigator.clipboard.writeText(data.key).catch(() => {});
+        navigator.clipboard.writeText(keyStr).catch(() => {});
       });
 
       box.appendChild(span);
@@ -318,12 +318,11 @@
 
     document.getElementById('getFreeKey').addEventListener('click', async () => {
       const res = await fetch('/keys/free');
-      const data = await res.json();
-      showFreeKey(data);
+      const keyText = await res.text();
+      showFreeKey(keyText);
       updateStats();
       loadFreeList();
       loadActiveList();
-      showHistory(data.id);
     });
 
     document.getElementById('markInUseForm').addEventListener('submit', async (e) => {

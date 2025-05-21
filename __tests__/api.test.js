@@ -88,19 +88,19 @@ describe('Key Server API', () => {
     const { app, dbPath } = await createServer();
     const k1 = 'AAAAA-AAAAA-AAAAA-AAAAA-00001';
     const k2 = 'AAAAA-AAAAA-AAAAA-AAAAA-00002';
-    await app.inject({ method: 'POST', url: '/keys', payload: { key: k1 } });
-    await app.inject({ method: 'POST', url: '/keys', payload: { key: k2 } });
+    const res1 = await app.inject({ method: 'POST', url: '/keys', payload: { key: k1 } });
+    const created1 = JSON.parse(res1.payload)[0];
+    const res2 = await app.inject({ method: 'POST', url: '/keys', payload: { key: k2 } });
+    const created2 = JSON.parse(res2.payload)[0];
 
     const freeRes = await app.inject('/keys/free');
     expect(freeRes.statusCode).toBe(200);
-    const freeKey = JSON.parse(freeRes.payload);
-    expect(freeKey.key).toBe(k1);
-    expect(freeKey.history).toHaveLength(1);
-    expect(freeKey.history[0].action).toBe('free');
+    const keyText = freeRes.payload;
+    expect(keyText).toBe(k1);
 
     const mark = await app.inject({
       method: 'PUT',
-      url: `/keys/${freeKey.id}/inuse`,
+      url: `/keys/${created1.id}/inuse`,
       payload: { assignedTo: 'Max' },
     });
     expect(mark.statusCode).toBe(200);
@@ -110,20 +110,20 @@ describe('Key Server API', () => {
     expect(updated.history).toHaveLength(2);
     expect(updated.history[1]).toMatchObject({ action: 'inuse', assignedTo: 'Max' });
 
-    const histRes = await app.inject(`/keys/${freeKey.id}/history`);
+    const histRes = await app.inject(`/keys/${created1.id}/history`);
     const hist = JSON.parse(histRes.payload);
     expect(hist).toHaveLength(2);
 
     const nextFree = await app.inject('/keys/free');
-    const next = JSON.parse(nextFree.payload);
-    expect(next.key).toBe(k2);
+    const nextText = nextFree.payload;
+    expect(nextText).toBe(k2);
 
-    await app.inject({ method: 'PUT', url: `/keys/${next.id}/inuse`, payload: {} });
+    await app.inject({ method: 'PUT', url: `/keys/${created2.id}/inuse`, payload: {} });
     const none = await app.inject('/keys/free');
     expect(none.statusCode).toBe(404);
 
     const persisted = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    const stored = persisted.find((k) => k.id === freeKey.id);
+    const stored = persisted.find((k) => k.id === created1.id);
     expect(stored.history).toHaveLength(2);
   });
 
@@ -189,18 +189,19 @@ describe('Key Server API', () => {
     const one = await app.inject({ method: 'POST', url: '/keys', payload: { key: k1 } });
     const two = await app.inject({ method: 'POST', url: '/keys', payload: { key: k2 } });
     const first = JSON.parse(one.payload)[0];
+    const second = JSON.parse(two.payload)[0];
 
     // Ersten Key ungültig setzen
     await app.inject({ method: 'PUT', url: `/keys/${first.id}/invalidate` });
 
     const free = await app.inject('/keys/free');
     expect(free.statusCode).toBe(200);
-    const data = JSON.parse(free.payload);
+    const keyText = free.payload;
     // Erwartet wird der zweite Key, da der erste ungültig ist
-    expect(data.key).toBe(k2);
+    expect(keyText).toBe(k2);
 
     // Zweiten Key in Benutzung setzen, danach sollte keiner mehr frei sein
-    await app.inject({ method: 'PUT', url: `/keys/${data.id}/inuse`, payload: {} });
+    await app.inject({ method: 'PUT', url: `/keys/${second.id}/inuse`, payload: {} });
     const none = await app.inject('/keys/free');
     expect(none.statusCode).toBe(404);
   });
@@ -245,10 +246,10 @@ describe('Key Server API', () => {
     const { app } = await createServer();
     const k1 = 'AAAAA-AAAAA-AAAAA-AAAAA-11111';
     const k2 = 'BBBBB-BBBBB-BBBBB-BBBBB-22222';
-    await app.inject({ method: 'POST', url: '/keys', payload: { key: k1 } });
-    await app.inject({ method: 'POST', url: '/keys', payload: { key: k2 } });
-    const first = JSON.parse((await app.inject('/keys/free')).payload);
-    await app.inject({ method: 'PUT', url: `/keys/${first.id}/inuse`, payload: {} });
+    const one = await app.inject({ method: 'POST', url: '/keys', payload: { key: k1 } });
+    const two = await app.inject({ method: 'POST', url: '/keys', payload: { key: k2 } });
+    const created1 = JSON.parse(one.payload)[0];
+    await app.inject({ method: 'PUT', url: `/keys/${created1.id}/inuse`, payload: {} });
 
     const list = await app.inject('/keys/free/list');
     expect(list.statusCode).toBe(200);

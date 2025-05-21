@@ -112,7 +112,8 @@ Key-Objekte.
 Bereits vorhandene Keys werden dabei ignoriert und nicht erneut gespeichert. Führt die Liste nur Duplikate oder ungültige Einträge, antwortet der Server mit Statuscode `400`.
 
 ### GET `/keys/free`
-Liefert den ersten verfügbaren Key (ein Key mit `inUse=false` und `invalid=false`). Gibt einen 404-Statuscode zurück, wenn keiner verfügbar ist.
+Gibt den ersten verfügbaren Key als reinen Text zurück (Muster `XXXXX-XXXXX-...`).
+Der Antworttyp ist `text/plain`. Ist kein Key frei, lautet der Statuscode `404`.
 
 ### GET `/keys/free/list`
 Gibt eine komplette Liste aller momentan freien Keys zurück. Die Antwort ist ein Array der entsprechenden Key-Objekte.

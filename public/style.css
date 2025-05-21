@@ -215,7 +215,6 @@ button:not(.icon-button):hover {
 
 .icon-use        { color: #14a44d; }
 .icon-release    { color: #ff9f1c; }
-.icon-invalidate { color: #a0a0a0; }
 .icon-delete     { color: var(--danger); }
 .icon-copy       { color: var(--primary); }
 

@@ -167,6 +167,27 @@
     box.appendChild(pre);
   }
 
+  // Stellt eine Historienliste als übersichtliche Tabelle dar
+  function renderHistory(list){
+    const box=document.getElementById('historyLog');
+    box.innerHTML='';
+    if(!Array.isArray(list)||!list.length){ box.textContent='Keine Einträge'; return; }
+
+    const table=document.createElement('table');
+    table.className='history-table';
+    const head=document.createElement('thead');
+    head.innerHTML='<tr><th>ID</th><th>Key</th><th>Aktion</th><th>Zeitpunkt</th><th>Zugewiesen an</th></tr>';
+    table.appendChild(head);
+    const body=document.createElement('tbody');
+    for(const h of list){
+      const tr=document.createElement('tr');
+      const time=new Date(h.timestamp).toLocaleString();
+      tr.innerHTML=`<td>${h.id??''}</td><td>${h.key}</td><td>${h.action}</td><td>${time}</td><td>${h.assignedTo||''}</td>`;
+      body.appendChild(tr);
+    }
+    table.appendChild(body); box.appendChild(table);
+  }
+
   function createActionButton(icon,cls,cb,title){
     const b=document.createElement('button');
     b.className='icon-button '+cls; b.textContent=icon;
@@ -232,7 +253,14 @@
   async function showHistory(key){
     if(!key) return;
     const r=await fetch(`/keys/${key}/history`); const h=await r.json();
-    displayJson('historyLog',h);
+    renderHistory(h);
+  }
+
+  // Ruft die komplette Historie aller Keys ab und zeigt sie im Log-Bereich an
+  async function loadGlobalHistory(){
+    const r=await fetch('/history');
+    const h=await r.json();
+    renderHistory(h);
   }
 
   // Ruft die komplette Historie aller Keys ab und zeigt sie im Log-Bereich an

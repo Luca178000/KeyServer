@@ -34,6 +34,20 @@
   }
 }
 
+/* Farbvariablen für manuelles Umschalten */
+body.dark {
+  --bg: hsl(222 28% 10%);
+  --text: hsl(0 0% 92%);
+  --border: hsl(0 0% 25%);
+  --card: hsl(222 28% 14%);
+}
+body.light {
+  --bg: hsl(0 0% 99%);
+  --text: hsl(0 0% 18%);
+  --border: hsl(0 0% 85%);
+  --card: #fff;
+}
+
 /* Manuell erzwingbarer Dark / Light Mode */
 body.dark  { color-scheme: dark; }
 body.light { color-scheme: light; }

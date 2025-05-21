@@ -138,6 +138,20 @@
   function applyTheme(mode){
     document.body.classList.remove('light','dark');
     if (mode) document.body.classList.add(mode);
+
+    // Setzt die Farbvariablen entsprechend dem ausgewählten Modus
+    if(mode === 'dark'){
+      document.body.style.setProperty('--bg','hsl(222 28% 10%)');
+      document.body.style.setProperty('--text','hsl(0 0% 92%)');
+      document.body.style.setProperty('--border','hsl(0 0% 25%)');
+      document.body.style.setProperty('--card','hsl(222 28% 14%)');
+    } else if(mode === 'light'){
+      document.body.style.setProperty('--bg','hsl(0 0% 99%)');
+      document.body.style.setProperty('--text','hsl(0 0% 18%)');
+      document.body.style.setProperty('--border','hsl(0 0% 85%)');
+      document.body.style.setProperty('--card','#fff');
+    }
+
     themeToggle.textContent = mode === 'dark' ? '☀️' : '🌙';
   }
 

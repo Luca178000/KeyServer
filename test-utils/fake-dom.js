@@ -16,6 +16,12 @@ class Element {
     this.className = '';
     this.title = '';
     this.children = [];
+    // Ermöglicht das Speichern von Inline-Styles inklusive CSS-Variablen
+    this.style = {
+      _v: {},
+      setProperty: (n,v)=>{ this.style._v[n]=v; },
+      getPropertyValue: (n)=>this.style._v[n]||''
+    };
     // Speichert hinterlegte Event-Handler
     this.listeners = {};
     // Einfache Umsetzung von classList 

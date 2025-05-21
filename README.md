@@ -36,7 +36,7 @@ Nach dem Start kann [http://localhost:3000/](http://localhost:3000/) im Browser
 aufgerufen werden, um eine einfache HTML-Oberfläche für die REST-Endpunkte zu nutzen. Dort werden Listen aller freien und aller aktuell benutzten Keys angezeigt. Diese Daten stammen aus den Endpunkten `/keys/free/list` und `/keys/active/list`.
 Das Layout verwendet eine eigene CSS-Datei `public/style.css`, die dem Dashboard ein modernes Erscheinungsbild verleiht.
 Die Oberfläche ist in mehrere Tabs aufgeteilt. Jeder Tab blendet die zugehörigen Abschnitte ein oder aus. Die Listen der Keys sind nun als vertikale Liste umgesetzt.
-Zu jedem Eintrag stehen Schaltflächen bereit, um den Key zu kopieren, zu löschen, freizugeben, als benutzt oder ungültig zu markieren sowie die Historie einzusehen.
+Zu jedem Eintrag stehen Schaltflächen bereit, um den Key zu kopieren, zu löschen, freizugeben, als benutzt zu markieren sowie die Historie einzusehen.
 
 
 Neu ist ein Button oben rechts, der zwischen hellem und dunklem Design umschaltet. Die Auswahl wird im Browser gespeichert, sodass das bevorzugte Design bei einem erneuten Besuch direkt aktiv ist. Die Farben werden weiterhin über CSS-Variablen angepasst.
@@ -60,11 +60,6 @@ Neu hinzugekommen ist ein weiteres Formular **Key löschen**, das den
 Schlüssel entgegennimmt und damit einen `DELETE`-Request auf `/keys/:key`
 ausführt.
 Das Ergebnis wird ebenfalls im Dashboard angezeigt.
-
-Ebenfalls verfügbar ist nun ein Formular **Key ungültig**, das einen Key annimmt
-und per Button einen `PUT`-Request auf `/keys/:key/invalidate` sendet. Dadurch
-wird der gewählte Key dauerhaft als unbrauchbar markiert. Die Serverantwort wird
-unter dem Formular dargestellt.
 
 
 ## REST-Endpunkte

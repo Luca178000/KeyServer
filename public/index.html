@@ -97,14 +97,6 @@
         <div id="releaseResult" class="result-box"></div>
       </section>
 
-      <section>
-        <h2>Key ungültig markieren</h2>
-        <form id="invalidateForm">
-          <input type="text" id="invalidateKey" placeholder="Key">
-          <button type="submit">Ungültig</button>
-        </form>
-        <div id="invalidateResult" class="result-box"></div>
-      </section>
 
       <section>
         <h2>Key löschen</h2>
@@ -209,7 +201,6 @@
       acts.append(
         createActionButton('✔️','icon-use',()=>markKeyInUse(k.key, prompt('Zugewiesen an?')||''),'Benutzen'),
         createActionButton('↩️','icon-release',()=>releaseKey(k.key),'Freigeben'),
-        createActionButton('🚫','icon-invalidate',()=>invalidateKey(k.key),'Ungültig'),
         createActionButton('🗑️','icon-delete',()=>deleteKey(k.key),'Löschen'),
         createActionButton('📋','icon-copy',()=>navigator.clipboard.writeText(k.key),'Kopieren'),
         createActionButton('📜','icon-history',()=>{showHistory(k.key);document.querySelector('[data-tab="history"]').click();},'Historie')
@@ -232,10 +223,6 @@
     displayJson('releaseResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(key);
   }
 
-  async function invalidateKey(key){
-    const r=await fetch(`/keys/${key}/invalidate`,{method:'PUT'}); const d=await r.json();
-    displayJson('invalidateResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(key);
-  }
 
   async function deleteKey(key){
     const r=await fetch(`/keys/${key}`,{method:'DELETE'}); const d=await r.json();
@@ -278,7 +265,6 @@
   };
 
   document.getElementById('releaseForm').onsubmit=e=>{ e.preventDefault(); releaseKey(document.getElementById('releaseKey').value); };
-  document.getElementById('invalidateForm').onsubmit=e=>{ e.preventDefault(); invalidateKey(document.getElementById('invalidateKey').value); };
   document.getElementById('deleteForm').onsubmit=e=>{ e.preventDefault(); deleteKey(document.getElementById('deleteKey').value); };
 
   /* ----------------- Initial Load ----------------- */

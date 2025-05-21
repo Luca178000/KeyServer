@@ -5,7 +5,7 @@ const buildServer = require('../server');
 
 async function createServer() {
   const dbPath = path.join(os.tmpdir(), `db-${Date.now()}-${Math.random()}.json`);
-  await fs.writeFile(dbPath, '[]');
+  await fs.writeFile(dbPath, JSON.stringify({ lastWarned: null, keys: [] }));
   const app = await buildServer({ logger: false, dbFile: dbPath });
   return { app, dbPath };
 }
@@ -31,9 +31,9 @@ describe('Key Server API', () => {
 
     const file = await fs.readFile(dbPath, 'utf8');
     const content = JSON.parse(file);
-    expect(content).toHaveLength(1);
-    expect(content[0].key).toBe('AAAAA-BBBBB-CCCCC-DDDDD-EEEEE');
-    expect(content[0].history).toEqual([]);
+    expect(content.keys).toHaveLength(1);
+    expect(content.keys[0].key).toBe('AAAAA-BBBBB-CCCCC-DDDDD-EEEEE');
+    expect(content.keys[0].history).toEqual([]);
   });
 
   test('POST /keys mit mehreren neuen Keys liefert alle Einträge', async () => {
@@ -50,7 +50,7 @@ describe('Key Server API', () => {
     expect(arr.map((k) => k.key).sort()).toEqual(keys.sort());
 
     const stored = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    expect(stored).toHaveLength(3);
+    expect(stored.keys).toHaveLength(3);
   });
 
   test('POST /keys akzeptiert mehrere Keys in einem Request', async () => {
@@ -65,7 +65,7 @@ describe('Key Server API', () => {
     expect(arr).toHaveLength(2);
 
     const stored = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    expect(stored).toHaveLength(2);
+    expect(stored.keys).toHaveLength(2);
   });
 
   test('POST /keys ignoriert bereits vorhandene Eintr\xC3\xA4ge', async () => {
@@ -81,7 +81,7 @@ describe('Key Server API', () => {
     expect(arr[0].key).toBe(b);
 
     const stored = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    expect(stored).toHaveLength(2);
+    expect(stored.keys).toHaveLength(2);
   });
 
   test('GET /keys/free and PUT /keys/:id/inuse', async () => {
@@ -123,7 +123,7 @@ describe('Key Server API', () => {
     expect(none.statusCode).toBe(404);
 
     const persisted = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    const stored = persisted.find((k) => k.id === created1.id);
+    const stored = persisted.keys.find((k) => k.id === created1.id);
     expect(stored.history).toHaveLength(2);
   });
 
@@ -161,8 +161,8 @@ describe('Key Server API', () => {
     expect(all[0].key).toBe(k2);
 
     const persisted = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    expect(persisted).toHaveLength(1);
-    expect(persisted[0].key).toBe(k2);
+    expect(persisted.keys).toHaveLength(1);
+    expect(persisted.keys[0].key).toBe(k2);
   });
 
   test('PUT /keys/:id/invalidate marks key as invalid', async () => {
@@ -177,7 +177,7 @@ describe('Key Server API', () => {
     expect(updated.invalid).toBe(true);
 
     const file = JSON.parse(await fs.readFile(dbPath, 'utf8'));
-    expect(file[0].invalid).toBe(true);
+    expect(file.keys[0].invalid).toBe(true);
   });
 
   test('GET /keys/free ignores invalid keys', async () => {
@@ -291,7 +291,7 @@ describe('Key Server API', () => {
     expect(updated.history[updated.history.length - 1].action).toBe('release');
 
     // Überprüfung der gespeicherten Daten
-    const stored = JSON.parse(await fs.readFile(dbPath, 'utf8'))[0];
+    const stored = JSON.parse(await fs.readFile(dbPath, 'utf8')).keys[0];
     expect(stored.inUse).toBe(false);
     expect(stored.assignedTo).toBeNull();
     expect(stored.history[stored.history.length - 1].action).toBe('release');

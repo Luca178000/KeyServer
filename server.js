@@ -24,16 +24,23 @@ async function buildServer(options = {}) {
   // Zwei Schwellenwerte für Benachrichtigungen
   const THRESHOLDS = [20, 10];
   // Merkt sich, unter welchem Grenzwert zuletzt gewarnt wurde
+  // Dieser Wert wird in der Datenbank mitgespeichert, damit bei einem Neustart
+  // nicht erneut gewarnt wird, wenn sich die Anzahl freier Keys nicht geändert hat
   let lastWarned = Infinity;
 
   // Prüft die Zahl freier Keys und verschickt nur einmal pro unterschrittener
   // Schwelle eine Warnung. Steigt die Zahl wieder über 20, wird zurückgesetzt.
-  function notifyIfLow() {
+  // Diese Funktion kann asynchron sein, da der Warnstatus bei Änderungen
+  // sofort in der Datenbank gespeichert wird.
+  async function notifyIfLow() {
     const free = keys.filter((k) => !k.inUse && !k.invalid).length;
 
     // Bei ausreichend vielen Keys wird der Warnzustand aufgehoben
     if (free >= THRESHOLDS[0]) {
-      lastWarned = Infinity;
+      if (lastWarned !== Infinity) {
+        lastWarned = Infinity;
+        await saveData();
+      }
       return;
     }
 
@@ -46,10 +53,12 @@ async function buildServer(options = {}) {
           .sendTelegramMessage(
             telegramToken,
             telegramChatId,
-            `Warnung: Nur noch ${free} freie Keys verfügbar.`
+            `Warnung: Nur noch ${free} von ${keys.length} freien Keys. ` +
+              'Zum Dashboard: http://localhost:3000/'
           )
           .catch(() => {});
         lastWarned = limit;
+        await saveData();
         break;
       }
     }
@@ -66,7 +75,15 @@ async function buildServer(options = {}) {
   async function loadData() {
     try {
       const data = await fs.readFile(dbFile, 'utf8');
-      keys = JSON.parse(data);
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        keys = parsed;
+        lastWarned = Infinity;
+      } else {
+        keys = parsed.keys || [];
+        lastWarned =
+          typeof parsed.lastWarned === 'number' ? parsed.lastWarned : Infinity;
+      }
       const maxId = keys.reduce((max, k) => Math.max(max, k.id), 0);
       nextId = maxId + 1;
       // Stellt sicher, dass neu eingef\u00fchrte Felder auch bei bereits
@@ -84,14 +101,18 @@ async function buildServer(options = {}) {
   }
 
   async function saveData() {
-    await fs.writeFile(dbFile, JSON.stringify(keys, null, 2));
+    const data = {
+      lastWarned: isFinite(lastWarned) ? lastWarned : null,
+      keys,
+    };
+    await fs.writeFile(dbFile, JSON.stringify(data, null, 2));
   }
 
   await loadData();
   // Direkt nach dem Laden der bestehenden Daten prüfen wir, ob bereits
   // weniger als THRESHOLD freie Keys vorhanden sind. Ist dies der Fall,
   // wird sofort eine Telegram-Warnung verschickt.
-  notifyIfLow();
+  await notifyIfLow();
 
   app.get('/keys', async (request) => {
     let result = keys;
@@ -157,7 +178,7 @@ async function buildServer(options = {}) {
 
 
     await saveData();
-    notifyIfLow();
+    await notifyIfLow();
     reply.code(201);
     return created;
   });
@@ -225,7 +246,7 @@ async function buildServer(options = {}) {
       assignedTo: keyEntry.assignedTo,
     });
     await saveData();
-    notifyIfLow();
+    await notifyIfLow();
 
     // Meldet im Log, dass der Key nun benutzt wird
     app.log.info({ id, assignedTo: keyEntry.assignedTo }, 'Key als benutzt markiert');
@@ -277,7 +298,7 @@ async function buildServer(options = {}) {
     // Flag setzen, damit dieser Key künftig nicht mehr verwendet wird
     keyEntry.invalid = true;
     await saveData();
-    notifyIfLow();
+    await notifyIfLow();
     return keyEntry;
   });
 
@@ -290,7 +311,7 @@ async function buildServer(options = {}) {
     }
     keys.splice(index, 1);
     await saveData();
-    notifyIfLow();
+    await notifyIfLow();
 
     // Loggt das Löschen eines Keys
     app.log.info({ id }, 'Key gelöscht');

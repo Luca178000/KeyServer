@@ -211,8 +211,25 @@ export TELEGRAM_BOT_TOKEN="<TOKEN>"
 export TELEGRAM_CHAT_ID="<CHAT_ID>"
 ```
 
-- `SEND_TELEGRAM_DURING_TESTS=true` erlaubt das Verschicken von Nachrichten während Jest-Tests.
-- Standardmäßig werden im Testmodus keine Nachrichten gesendet.
+
+Die beiden Variablen k\xC3\B6nnen entweder wie oben gezeigt tempor\xC3\A4r in der
+Shell gesetzt oder in einer Datei `.env` hinterlegt werden. Legt man in dieser
+Datei folgende Zeilen ab,
+
+```bash
+TELEGRAM_BOT_TOKEN=<TOKEN>
+TELEGRAM_CHAT_ID=<CHAT_ID>
+```
+
+k\xC3\B6nnen die Eintr\xC3\A4ge vor dem Start des Servers geladen werden, zum
+Beispiel unter Bash mit:
+
+```bash
+export $(grep -v '^#' .env | xargs)
+```
+
+Danach steht `npm start` die Konfiguration zur Verf\xC3\BCgung.
+
 
 Die Warnungen werden nur einmal je Schwelle versendet, um wiederholte Meldungen
 zu vermeiden. Steigt die Zahl freier Keys über zwanzig, beginnt die Zählung von

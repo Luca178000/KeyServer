@@ -6,7 +6,7 @@ const buildServer = require('../server');
 // Hilfsfunktion zum Starten eines Servers mit temporärer Datenbank
 async function createServer() {
   const dbPath = path.join(os.tmpdir(), `db-${Date.now()}-${Math.random()}.json`);
-  await fs.writeFile(dbPath, '[]');
+  await fs.writeFile(dbPath, JSON.stringify({ lastWarned: null, keys: [] }));
   const app = await buildServer({ logger: false, dbFile: dbPath });
   return { app, dbPath };
 }

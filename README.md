@@ -182,7 +182,10 @@ Damit schreibt Pino alle Logeinträge in die angegebene Datei.
 Ist ein Bot-Token sowie eine Chat-ID hinterlegt, informiert der Server per
 Telegram, sobald erstmals weniger als 20 freie Keys vorhanden sind. Fällt der
 Bestand später unter zehn, wird ein weiteres Mal gewarnt. Diese Prüfung erfolgt
-sowohl beim laufenden Betrieb als auch direkt beim Start des Servers. Dazu müssen folgende
+sowohl beim laufenden Betrieb als auch direkt beim Start des Servers. Der zuletzt
+ausgelöste Warnstatus wird jetzt in der Datei `db.json` gespeichert, damit ein
+Neustart keine erneute Meldung erzeugt, wenn sich die Anzahl der Keys nicht
+geändert hat. Dazu müssen folgende
 Variablen gesetzt werden:
 
 ```bash
@@ -192,7 +195,8 @@ export TELEGRAM_CHAT_ID="<CHAT_ID>"
 
 Die Warnungen werden nur einmal je Schwelle versendet, um wiederholte Meldungen
 zu vermeiden. Steigt die Zahl freier Keys über zwanzig, beginnt die Zählung von
-neuem.
+neuem. Die Telegram-Nachricht enthält zusätzlich die Gesamtzahl aller Keys und
+einen Link zum Dashboard (`http://localhost:3000/`).
 
 ## Tests
 

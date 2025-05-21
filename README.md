@@ -159,6 +159,14 @@ Beim Start werden die gespeicherten Einträge geladen, sodass die Keys auch nach
 
 Dieses Projekt enthält keine Sicherheitsmechanismen, keine Authentifizierung und kein HTTPS. Der Fokus liegt allein auf den oben beschriebenen REST-Endpunkten.
 
+## Logging
+
+Wird der Server mit aktivierter Logger-Option gestartet (Standard bei `npm start`),
+werden wichtige Aktionen protokolliert. Dazu gehören insbesondere das Abrufen
+eines freien Keys, das Markieren als benutzt, das Freigeben sowie das Löschen
+eines Eintrags. Die Log-Ausgaben erscheinen auf der Konsole und können zur
+Nachverfolgung der Vorgänge genutzt werden.
+
 ## Tests
 
 Um sicherzustellen, dass alle Funktionen weiterhin korrekt arbeiten, existieren Jest-Tests im Verzeichnis `__tests__`. Diese decken sämtliche REST-Endpunkte sowie das Dashboard ab. Die Ausführung inklusive Testabdeckung erfolgt mit:

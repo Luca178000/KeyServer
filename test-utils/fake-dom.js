@@ -16,6 +16,19 @@ class Element {
     this.className = '';
     this.title = '';
     this.children = [];
+    // Speichert hinterlegte Event-Handler
+    this.listeners = {};
+    // Einfache Umsetzung von classList 
+    this.classList = {
+      _c: new Set(),
+      add: (...n) => n.forEach((c) => this.classList._c.add(c)),
+      remove: (...n) => n.forEach((c) => this.classList._c.delete(c)),
+      contains: (n) => this.classList._c.has(n),
+      toggle: (n) => {
+        if (this.classList._c.has(n)) this.classList._c.delete(n);
+        else this.classList._c.add(n);
+      }
+    };
   }
 
   /**
@@ -34,9 +47,14 @@ class Element {
   appendChild(child) { this.children.push(child); }
 
   /**
+   * Nimmt mehrere Kindelemente entgegen und fügt sie an.
+   */
+  append(...kids) { this.children.push(...kids); }
+
+  /**
    * Platzhalter f\u00fcr Event-Listener, wird in den Tests nicht ben\u00f6tigt.
    */
-  addEventListener() {}
+  addEventListener(type, fn) { this.listeners[type] = fn; }
 }
 
 /**
@@ -48,6 +66,8 @@ class Document {
    */
   constructor() {
     this.nodes = {};
+    this.body = new Element('body');
+    this.listeners = {};
   }
 
   /**
@@ -83,9 +103,9 @@ class Document {
   }
 
   /**
-   * Platzhalter f\u00fcr addEventListener, derzeit ohne Funktion.
+   * Speichert Event-Handler, um sie sp\u00e4ter ausf\u00fchren zu k\u00f6nnen.
    */
-  addEventListener() {}
+  addEventListener(type, fn) { this.listeners[type] = fn; }
 }
 
 /**

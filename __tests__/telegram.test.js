@@ -21,7 +21,7 @@ async function createServerWithKeys(count) {
       invalid: false
     });
   }
-  await fs.writeFile(dbPath, JSON.stringify(keys));
+  await fs.writeFile(dbPath, JSON.stringify({ lastWarned: null, keys }));
   const app = await buildServer({ logger: false, dbFile: dbPath });
   return { app, dbPath };
 }
@@ -92,6 +92,47 @@ describe('Telegram Integration', () => {
     // Kurze Pause, damit der asynchrone Aufruf verarbeitet wird
     await new Promise((r) => setImmediate(r));
     expect(spy).toHaveBeenCalledTimes(1);
+    await app.close();
+    spy.mockRestore();
+    delete process.env.TELEGRAM_BOT_TOKEN;
+    delete process.env.TELEGRAM_CHAT_ID;
+  });
+
+  test('Warnstatus bleibt nach Neustart erhalten', async () => {
+    process.env.TELEGRAM_BOT_TOKEN = 'T';
+    process.env.TELEGRAM_CHAT_ID = 'C';
+    const spy = jest
+      .spyOn(telegram, 'sendTelegramMessage')
+      .mockResolvedValue({ ok: true });
+
+    const { app, dbPath } = await createServerWithKeys(18);
+    await new Promise((r) => setImmediate(r));
+    expect(spy).toHaveBeenCalledTimes(1);
+    await app.close();
+
+    const app2 = await buildServer({ logger: false, dbFile: dbPath });
+    await new Promise((r) => setImmediate(r));
+    expect(spy).toHaveBeenCalledTimes(1);
+    await app2.close();
+    spy.mockRestore();
+    delete process.env.TELEGRAM_BOT_TOKEN;
+    delete process.env.TELEGRAM_CHAT_ID;
+  });
+
+  test('Telegram-Nachricht enthält nur die Zahl freier Keys', async () => {
+    process.env.TELEGRAM_BOT_TOKEN = 'T';
+    process.env.TELEGRAM_CHAT_ID = 'C';
+    const spy = jest
+      .spyOn(telegram, 'sendTelegramMessage')
+      .mockResolvedValue({ ok: true });
+
+    const { app } = await createServerWithKeys(18);
+    await new Promise((r) => setImmediate(r));
+    expect(spy).toHaveBeenCalledWith(
+      'T',
+      'C',
+      'Warnung: Nur noch 18 freie Keys. Zum Dashboard: http://localhost:3000/'
+    );
     await app.close();
     spy.mockRestore();
     delete process.env.TELEGRAM_BOT_TOKEN;

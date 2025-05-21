@@ -9,7 +9,7 @@ describe('Logging in Datei', () => {
   test('schreibt Einträge in angegebene Logdatei', async () => {
     const dbPath = path.join(os.tmpdir(), `db-${Date.now()}-${Math.random()}.json`);
     const logPath = path.join(os.tmpdir(), `log-${Date.now()}-${Math.random()}.log`);
-    await fs.writeFile(dbPath, '[]');
+    await fs.writeFile(dbPath, JSON.stringify({ lastWarned: null, keys: [] }));
 
     const app = await buildServer({ logger: true, dbFile: dbPath, logFile: logPath });
 

@@ -10,7 +10,7 @@ Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwalte
 - `__tests__/` – Jest-Tests.
 - `test-utils/` – Hilfsfunktionen für DOM-Tests.
 
-Die Datei `db.json` wird beim Start angelegt und speichert die Daten.
+Die Datei `db.json` wird beim ersten Start automatisch erzeugt und speichert die Keys dauerhaft.
 
 ## Installation
 

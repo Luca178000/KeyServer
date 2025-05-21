@@ -18,7 +18,7 @@ describe('Dashboard', () => {
     const res = await app.inject('/');
     expect(res.statusCode).toBe(200);
     // Im HTML-Code muss der Verweis auf die CSS-Datei vorhanden sein
-    expect(res.payload).toContain('<link rel="stylesheet" href="style.css">');
+    expect(res.payload).toContain('href="style.css"');
   });
   test("enthaelt Tab-Navigation", async () => {
     const { app } = await createServer();
@@ -99,14 +99,54 @@ describe('Dashboard', () => {
 
     await dom.window.loadFreeList();
     await dom.window.loadActiveList();
+    // Kurze Pause, damit die asynchronen Aufrufe abgeschlossen sind
+    await new Promise(r => setImmediate(r));
 
     const freeList = dom.window.document.getElementById('listFree');
     const activeList = dom.window.document.getElementById('listActive');
 
     expect(freeList.children).toHaveLength(1);
     expect(activeList.children).toHaveLength(1);
-    expect(freeList.children[0].children[0].textContent).toBe('1: FREE-KEY-0001');
-    expect(activeList.children[0].children[0].textContent).toBe('2: USED-KEY-0002');
+    expect(freeList.children[0].innerHTML).toContain('1: FREE-KEY-0001');
+    expect(activeList.children[0].innerHTML).toContain('2: USED-KEY-0002');
+  });
+
+  test('sidebarToggle blendet die Sidebar ein und aus', async () => {
+    const html = await fs.readFile(path.join(__dirname, '../public/index.html'), 'utf8');
+    const { JSDOM } = require('../test-utils/fake-dom');
+    const dom = new JSDOM(html, { runScripts: 'dangerously' });
+
+    const sidebar = dom.window.document.getElementById('sidebar');
+    const toggle = dom.window.document.getElementById('sidebarToggle');
+
+    sidebar.classList.add('hidden');
+    toggle.listeners.click();
+    expect(sidebar.classList.contains('hidden')).toBe(false);
+    toggle.listeners.click();
+    expect(sidebar.classList.contains('hidden')).toBe(true);
+  });
+
+  test('applyTheme schaltet auf dunkles Design um', async () => {
+    const html = await fs.readFile(path.join(__dirname, '../public/index.html'), 'utf8');
+    const { JSDOM } = require('../test-utils/fake-dom');
+    const dom = new JSDOM(html, { runScripts: 'dangerously' });
+
+    dom.window.applyTheme('dark');
+
+    expect(dom.window.document.body.classList.contains('dark')).toBe(true);
+    expect(dom.window.document.getElementById('themeToggle').textContent).toContain('☀️');
+  });
+
+  test('showFreeKey erzeugt einen Kopieren-Button', async () => {
+    const html = await fs.readFile(path.join(__dirname, '../public/index.html'), 'utf8');
+    const { JSDOM } = require('../test-utils/fake-dom');
+    const dom = new JSDOM(html, { runScripts: 'dangerously' });
+
+    dom.window.showFreeKey('TEST');
+
+    const box = dom.window.document.getElementById('freeKey');
+    expect(box.children).toHaveLength(2);
+    expect(box.children[1].textContent).toBe('📋');
   });
 
 

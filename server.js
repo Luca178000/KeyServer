@@ -3,8 +3,9 @@ const fs = require('fs/promises');
 const path = require('path');
 // Pino wird verwendet, um wahlweise in eine Logdatei zu schreiben
 const pino = require('pino');
-// Hilfsfunktion zum Versenden von Telegram-Nachrichten
-const { sendTelegramMessage } = require('./telegram');
+// Modul zum Versenden von Telegram-Nachrichten
+// Die Funktion wird nicht sofort entpackt, damit Tests sie leichter ersetzen
+const telegram = require('./telegram');
 
 async function buildServer(options = {}) {
   const {
@@ -27,7 +28,7 @@ async function buildServer(options = {}) {
     const free = keys.filter((k) => !k.inUse && !k.invalid).length;
     if (free < THRESHOLD && telegramToken && telegramChatId) {
       // Fehler beim Senden dürfen den Server nicht stoppen
-      sendTelegramMessage(
+      telegram.sendTelegramMessage(
         telegramToken,
         telegramChatId,
         `Warnung: Nur noch ${free} freie Keys verfügbar.`

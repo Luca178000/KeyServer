@@ -1,4 +1,5 @@
-const fetch = global.fetch;
+// Verwenden von global.fetch erst zur Laufzeit,
+// damit Tests den Aufruf leichter abfangen können
 
 /**
  * Sendet eine Nachricht über die Telegram Bot API.
@@ -9,7 +10,8 @@ const fetch = global.fetch;
  */
 async function sendTelegramMessage(token, chatId, text) {
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
-  const res = await fetch(url, {
+  // Zugriff direkt auf global.fetch, um Mocking in Tests zu ermöglichen
+  const res = await global.fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text }),

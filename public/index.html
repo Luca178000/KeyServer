@@ -55,16 +55,6 @@
     <!-- TAB ▸ Aktionen -->
     <div id="actions" class="tab-content" style="display:none">
       <section>
-        <h2>Alle Keys</h2>
-        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
-          <label><input type="checkbox" id="filterInUse"> nur benutzte</label>
-          <input type="text" id="filterAssignedTo" placeholder="Zugewiesen an">
-          <button id="loadKeys">Laden</button>
-        </div>
-        <div id="allKeys" class="result-box"></div>
-      </section>
-
-      <section>
         <h2>Neuen Key hinzufügen</h2>
         <form id="addKeyForm">
           <textarea id="newKey" rows="3" placeholder="XXXXX-XXXXX-XXXXX-XXXXX"></textarea>
@@ -361,15 +351,6 @@
 
 
   /* ----------------- Form Events ----------------- */
-  document.getElementById('loadKeys').onclick=async()=>{
-    const p=[];
-    if(document.getElementById('filterInUse').checked) p.push('inUse=true');
-    const as=document.getElementById('filterAssignedTo').value.trim();
-    if(as) p.push('assignedTo='+encodeURIComponent(as));
-    const r=await fetch('/keys'+(p.length?'?'+p.join('&'):'')); const d=await r.json();
-    displayJson('allKeys',d); updateStats(); loadFreeList(); loadActiveList();
-  };
-
   document.getElementById('addKeyForm').onsubmit=async e=>{
     e.preventDefault();
     const raw=document.getElementById('newKey').value;

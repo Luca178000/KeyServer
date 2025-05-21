@@ -49,11 +49,6 @@ Zusätzlich gibt es nun in der Statistik einen Zähler für ungültige Keys.
 Ein neuer Tab **Aktivierungen** stellt übersichtlich dar, wie viele Keys pro Tag
 und pro Kalenderwoche benutzt wurden. Diese Daten werden vom Server über den
 Endpunkt `/stats` bereitgestellt und in Tabellenform angezeigt.
-Ebenfalls im Dashboard vorhanden sind Filterfelder für die Gesamtübersicht.
-Mit einer Checkbox lassen sich nur aktuell benutzte Keys anzeigen. Über ein
-Textfeld kann zudem nach dem Wert des Feldes `assignedTo` gefiltert werden.
-Beim Klick auf **Laden** werden diese Angaben als Query-Parameter an den
-Endpunkt `/keys` angehängt und das Ergebnis direkt angezeigt.
 
 Außerdem steht ein Formular **Key freigeben** bereit. Mit Eingabe des
 Windows-Keys schickt es einen PUT-Request auf `/keys/:key/release`, markiert den

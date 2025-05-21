@@ -28,6 +28,7 @@ describe('Dashboard', () => {
     expect(res.payload).toContain('class="key-list"');
     expect(res.payload).toContain('Aktivierte Keys');
     expect(res.payload).toContain('invalidCount');
+    expect(res.payload).toContain('data-tab="stats"');
   });
 
   test('enthält Darkmode-Button', async () => {
@@ -164,6 +165,20 @@ describe('Dashboard', () => {
     const box = dom.window.document.getElementById('freeKey');
     expect(box.children).toHaveLength(2);
     expect(box.children[1].textContent).toBe('📋');
+  });
+
+  test('loadStats ruft /stats auf und füllt die Tabelle', async () => {
+    const html = await fs.readFile(path.join(__dirname, '../public/index.html'), 'utf8');
+    const { JSDOM } = require('../test-utils/fake-dom');
+    const dom = new JSDOM(html, { runScripts: 'dangerously' });
+
+    const statsData = { perDay: { '2024-01-01': 1 }, perWeek: { '2024-W01': 1 } };
+    dom.window.fetch = jest.fn().mockResolvedValue({ json: async () => statsData });
+    await dom.window.loadStats();
+
+    const box = dom.window.document.getElementById('statsBox');
+    expect(dom.window.fetch).toHaveBeenCalledWith('/stats');
+    expect(box.children.length).toBeGreaterThan(0);
   });
 
 

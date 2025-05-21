@@ -333,6 +333,34 @@ async function buildServer(options = {}) {
     return list;
   });
 
+  // Ermittelt die Kalenderwoche eines Datums nach ISO-Standard
+  function isoWeek(ts) {
+    const d = new Date(ts);
+    d.setUTCHours(0, 0, 0, 0);
+    // Donnerstag der aktuellen Woche bestimmt das Jahr
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+    return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+  }
+
+  // Liefert Statistiken über Aktivierungen pro Tag und Woche
+  app.get('/stats', async () => {
+    const perDay = {};
+    const perWeek = {};
+    for (const k of keys) {
+      if (!Array.isArray(k.history)) continue;
+      for (const h of k.history) {
+        if (h.action !== 'inuse') continue;
+        const day = h.timestamp.slice(0, 10);
+        perDay[day] = (perDay[day] || 0) + 1;
+        const week = isoWeek(h.timestamp);
+        perWeek[week] = (perWeek[week] || 0) + 1;
+      }
+    }
+    return { perDay, perWeek };
+  });
+
   // Markiert einen Key dauerhaft als ungültig
   // Im Dashboard wird dieser Endpunkt über den Button "Key ungültig" aufgerufen
   app.put('/keys/:key/invalidate', async (request, reply) => {

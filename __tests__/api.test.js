@@ -320,6 +320,22 @@ describe('Key Server API', () => {
     expect(times).toEqual(sorted);
   });
 
+  test('GET /stats liefert Aktivierungen pro Tag und Woche', async () => {
+    const { app } = await createServer();
+    const k1 = 'STAT1-STAT1-STAT1-STAT1-00001';
+    const k2 = 'STAT2-STAT2-STAT2-STAT2-00002';
+    await app.inject({ method: 'POST', url: '/keys', payload: { keys: [k1, k2] } });
+    await app.inject({ method: 'PUT', url: `/keys/${k1}/inuse`, payload: {} });
+    await app.inject({ method: 'PUT', url: `/keys/${k2}/inuse`, payload: {} });
+    const res = await app.inject('/stats');
+    expect(res.statusCode).toBe(200);
+    const stats = JSON.parse(res.payload);
+    const today = new Date().toISOString().slice(0,10);
+    const week = (()=>{ const d=new Date(); d.setUTCHours(0,0,0,0); d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7)); const s=new Date(Date.UTC(d.getUTCFullYear(),0,1)); const w=Math.ceil(((d-s)/86400000+1)/7); return `${d.getUTCFullYear()}-W${String(w).padStart(2,'0')}`;})();
+    expect(stats.perDay[today]).toBe(2);
+    expect(stats.perWeek[week]).toBe(2);
+  });
+
   test('Dashboard releaseKey flow via fetch', async () => {
     const { app } = await createServer();
 

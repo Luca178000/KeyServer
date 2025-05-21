@@ -22,6 +22,7 @@
       <button data-tab="overview" class="active">Übersicht</button>
       <button data-tab="actions">Aktionen</button>
       <button data-tab="history">Historie</button>
+      <button data-tab="stats">Aktivierungen</button>
     </nav>
   </aside>
 
@@ -126,6 +127,14 @@
       </section>
     </div>
 
+    <!-- TAB ▸ Aktivierungen -->
+    <div id="stats" class="tab-content" style="display:none">
+      <section>
+        <h2>Aktivierungen</h2>
+        <div id="statsBox" class="result-box"></div>
+      </section>
+    </div>
+
   </main>
 
   <!-- ───────────────── SCRIPTS ───────────────── -->
@@ -212,6 +221,29 @@
     table.appendChild(body); box.appendChild(table);
   }
 
+  // Zeigt Aktivierungen pro Tag und Woche in Tabellenform an
+  function renderStats(data){
+    const box=document.getElementById('statsBox');
+    box.innerHTML='';
+    const makeTable=(title,obj)=>{
+      const t=document.createElement('table');
+      t.className='history-table';
+      const head=document.createElement('thead');
+      head.innerHTML='<tr><th>'+title+'</th><th>Anzahl</th></tr>';
+      t.appendChild(head);
+      const body=document.createElement('tbody');
+      for(const [k,v] of Object.entries(obj)){
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${k}</td><td>${v}</td>`;
+        body.appendChild(tr);
+      }
+      t.appendChild(body);
+      return t;
+    };
+    box.appendChild(makeTable('Datum',data.perDay));
+    box.appendChild(makeTable('Woche',data.perWeek));
+  }
+
   function createActionButton(icon,cls,cb,title){
     const b=document.createElement('button');
     b.className='icon-button '+cls; b.textContent=icon;
@@ -256,11 +288,16 @@
 
   async function loadFreeList(){ renderList('listFree','/keys/free/list'); }
   async function loadActiveList(){ renderList('listActive','/keys/active/list'); }
+  async function loadStats(){
+    const r=await fetch('/stats');
+    const d=await r.json();
+    renderStats(d);
+  }
 
   async function markKeyInUse(key,assignedTo=''){
     const r=await fetch(`/keys/${key}/inuse`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({assignedTo})});
     const d=await r.json(); displayJson('inUseResult',d);
-    updateStats(); loadFreeList(); loadActiveList(); showHistory(key); loadGlobalHistory();
+    updateStats(); loadFreeList(); loadActiveList(); showHistory(key); loadGlobalHistory(); loadStats();
   }
 
   async function releaseKey(key){
@@ -349,7 +386,7 @@
   document.addEventListener('DOMContentLoaded',()=>{
     applyTheme(localStorage.getItem('theme'));
     sidebar.classList.toggle('hidden', window.innerWidth < 850);  /* mobile default-closed */
-    updateStats(); loadFreeList(); loadActiveList(); loadGlobalHistory(); loadTelegram();
+    updateStats(); loadFreeList(); loadActiveList(); loadGlobalHistory(); loadTelegram(); loadStats();
   });
   </script>
 </body>

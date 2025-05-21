@@ -215,23 +215,30 @@
   async function markKeyInUse(key,assignedTo=''){
     const r=await fetch(`/keys/${key}/inuse`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({assignedTo})});
     const d=await r.json(); displayJson('inUseResult',d);
-    updateStats(); loadFreeList(); loadActiveList(); showHistory(key);
+    updateStats(); loadFreeList(); loadActiveList(); showHistory(key); loadGlobalHistory();
   }
 
   async function releaseKey(key){
     const r=await fetch(`/keys/${key}/release`,{method:'PUT'}); const d=await r.json();
-    displayJson('releaseResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(key);
+    displayJson('releaseResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(key); loadGlobalHistory();
   }
 
 
   async function deleteKey(key){
     const r=await fetch(`/keys/${key}`,{method:'DELETE'}); const d=await r.json();
-    displayJson('deleteResult',d); updateStats(); loadFreeList(); loadActiveList(); document.getElementById('historyLog').textContent='';
+    displayJson('deleteResult',d); updateStats(); loadFreeList(); loadActiveList(); document.getElementById('historyLog').textContent=''; loadGlobalHistory();
   }
 
   async function showHistory(key){
     if(!key) return;
     const r=await fetch(`/keys/${key}/history`); const h=await r.json();
+    displayJson('historyLog',h);
+  }
+
+  // Ruft die komplette Historie aller Keys ab und zeigt sie im Log-Bereich an
+  async function loadGlobalHistory(){
+    const r=await fetch('/history');
+    const h=await r.json();
     displayJson('historyLog',h);
   }
 
@@ -251,12 +258,12 @@
     const keys=raw.split(/\r?\n/).map(k=>k.trim()).filter(Boolean);
     const r=await fetch('/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keys})});
     const d=await r.json(); displayJson('addKeyResult',d);
-    updateStats(); loadFreeList(); loadActiveList(); if(d.length) showHistory(d[0].key);
+    updateStats(); loadFreeList(); loadActiveList(); if(d.length) showHistory(d[0].key); loadGlobalHistory();
   };
 
   document.getElementById('getFreeKey').onclick=async()=>{
     const r=await fetch('/keys/free'); const t=await r.text();
-    showFreeKey(t); updateStats(); loadFreeList(); loadActiveList();
+    showFreeKey(t); updateStats(); loadFreeList(); loadActiveList(); loadGlobalHistory();
   };
 
   document.getElementById('markInUseForm').onsubmit=e=>{
@@ -271,7 +278,7 @@
   document.addEventListener('DOMContentLoaded',()=>{
     applyTheme(localStorage.getItem('theme'));
     sidebar.classList.toggle('hidden', window.innerWidth < 850);  /* mobile default-closed */
-    updateStats(); loadFreeList(); loadActiveList();
+    updateStats(); loadFreeList(); loadActiveList(); loadGlobalHistory();
   });
   </script>
 </body>

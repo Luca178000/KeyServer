@@ -297,6 +297,29 @@ describe('Key Server API', () => {
     expect(stored.history[stored.history.length - 1].action).toBe('release');
   });
 
+  test('GET /history liefert globale Historie', async () => {
+    const { app } = await createServer();
+    const k1 = 'HHHHH-HHHHH-HHHHH-HHHHH-00001';
+    const k2 = 'IIIII-IIIII-IIIII-IIIII-00002';
+
+    await app.inject({ method: 'POST', url: '/keys', payload: { keys: [k1, k2] } });
+    await app.inject({ method: 'PUT', url: `/keys/${k1}/inuse`, payload: { assignedTo: 'A' } });
+    await app.inject({ method: 'PUT', url: `/keys/${k1}/release` });
+    await app.inject({ method: 'PUT', url: `/keys/${k2}/inuse`, payload: { assignedTo: 'B' } });
+    await app.inject({ method: 'PUT', url: `/keys/${k2}/release` });
+
+    const res = await app.inject('/history');
+    expect(res.statusCode).toBe(200);
+    const list = JSON.parse(res.payload);
+
+    expect(list.filter((e) => e.key === k1)).toHaveLength(2);
+    expect(list.filter((e) => e.key === k2)).toHaveLength(2);
+
+    const times = list.map((e) => e.timestamp);
+    const sorted = [...times].sort();
+    expect(times).toEqual(sorted);
+  });
+
   test('Dashboard releaseKey flow via fetch', async () => {
     const { app } = await createServer();
 

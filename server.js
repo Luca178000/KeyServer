@@ -3,6 +3,8 @@ const fs = require('fs/promises');
 const path = require('path');
 // Pino wird verwendet, um wahlweise in eine Logdatei zu schreiben
 const pino = require('pino');
+// Hilfsfunktion zum Versenden von Telegram-Nachrichten
+const { sendTelegramMessage } = require('./telegram');
 
 async function buildServer(options = {}) {
   const {
@@ -14,6 +16,24 @@ async function buildServer(options = {}) {
   // Wird ein Dateipfad angegeben, schreibt der Logger dahin
   const destination = logFile ? pino.destination(logFile) : undefined;
   const app = fastify({ logger: destination ? { stream: destination } : logger });
+
+  // Token und Chat-ID für Telegram aus Umgebungsvariablen auslesen
+  const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+  const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+  const THRESHOLD = 20;
+
+  // Prüft die Zahl freier Keys und verschickt ggf. eine Warnung
+  function notifyIfLow() {
+    const free = keys.filter((k) => !k.inUse && !k.invalid).length;
+    if (free < THRESHOLD && telegramToken && telegramChatId) {
+      // Fehler beim Senden dürfen den Server nicht stoppen
+      sendTelegramMessage(
+        telegramToken,
+        telegramChatId,
+        `Warnung: Nur noch ${free} freie Keys verfügbar.`
+      ).catch(() => {});
+    }
+  }
 
   app.register(require('@fastify/static'), {
     root: path.join(__dirname, 'public'),
@@ -111,7 +131,9 @@ async function buildServer(options = {}) {
       return { error: 'Kein gültiger Key übergeben' };
     }
 
+
     await saveData();
+    notifyIfLow();
     reply.code(201);
     return created;
   });
@@ -179,6 +201,7 @@ async function buildServer(options = {}) {
       assignedTo: keyEntry.assignedTo,
     });
     await saveData();
+    notifyIfLow();
 
     // Meldet im Log, dass der Key nun benutzt wird
     app.log.info({ id, assignedTo: keyEntry.assignedTo }, 'Key als benutzt markiert');
@@ -230,6 +253,7 @@ async function buildServer(options = {}) {
     // Flag setzen, damit dieser Key künftig nicht mehr verwendet wird
     keyEntry.invalid = true;
     await saveData();
+    notifyIfLow();
     return keyEntry;
   });
 
@@ -242,6 +266,7 @@ async function buildServer(options = {}) {
     }
     keys.splice(index, 1);
     await saveData();
+    notifyIfLow();
 
     // Loggt das Löschen eines Keys
     app.log.info({ id }, 'Key gelöscht');

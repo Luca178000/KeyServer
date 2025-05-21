@@ -177,6 +177,20 @@ npm start -- ./server.log
 
 Damit schreibt Pino alle Logeinträge in die angegebene Datei.
 
+## Telegram-Benachrichtigung
+
+Ist ein Bot-Token sowie eine Chat-ID hinterlegt, informiert der Server per
+Telegram, sobald weniger als 20 freie Keys vorhanden sind. Dazu müssen folgende
+Variablen gesetzt werden:
+
+```bash
+export TELEGRAM_BOT_TOKEN="<TOKEN>"
+export TELEGRAM_CHAT_ID="<CHAT_ID>"
+```
+
+Sinkt der Bestand unter die genannte Schwelle, verschickt der Server automatisch
+eine Warnung an das angegebene Konto.
+
 ## Tests
 
 Um sicherzustellen, dass alle Funktionen weiterhin korrekt arbeiten, existieren Jest-Tests im Verzeichnis `__tests__`. Diese decken sämtliche REST-Endpunkte sowie das Dashboard ab. Die Ausführung inklusive Testabdeckung erfolgt mit:

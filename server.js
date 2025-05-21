@@ -21,8 +21,14 @@ async function buildServer(options = {}) {
   // Token und Chat-ID für Telegram aus Umgebungsvariablen auslesen
   const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
   const telegramChatId = process.env.TELEGRAM_CHAT_ID;
-  // Zwei Schwellenwerte für Benachrichtigungen
-  const THRESHOLDS = [20, 10];
+  // Konfiguration für Telegram mit Standards
+  // thresholds: Wann eine Warnung ausgelöst wird
+  // messageTemplate: Text der Nachricht, {free} wird ersetzt
+  let telegramConfig = {
+    thresholds: [20, 10],
+    messageTemplate:
+      'Warnung: Nur noch {free} freie Keys. Zum Dashboard: http://localhost:3000/',
+  };
   // Merkt sich, unter welchem Grenzwert zuletzt gewarnt wurde
   // Dieser Wert wird in der Datenbank mitgespeichert, damit bei einem Neustart
   // nicht erneut gewarnt wird, wenn sich die Anzahl freier Keys nicht geändert hat
@@ -36,7 +42,7 @@ async function buildServer(options = {}) {
     const free = keys.filter((k) => !k.inUse && !k.invalid).length;
 
     // Bei ausreichend vielen Keys wird der Warnzustand aufgehoben
-    if (free >= THRESHOLDS[0]) {
+    if (free >= telegramConfig.thresholds[0]) {
       if (lastWarned !== Infinity) {
         lastWarned = Infinity;
         await saveData();
@@ -46,7 +52,7 @@ async function buildServer(options = {}) {
 
     if (!telegramToken || !telegramChatId) return;
 
-    for (const limit of THRESHOLDS) {
+    for (const limit of telegramConfig.thresholds) {
       if (free < limit && limit < lastWarned) {
         // ***
         // Bevor wir eine Telegram-Nachricht verschicken, prüfen wir, ob wir
@@ -65,17 +71,9 @@ async function buildServer(options = {}) {
         }
 
         // Fehler beim Senden dürfen den Server nicht stoppen
+        const text = telegramConfig.messageTemplate.replace('{free}', String(free));
         telegram
-          .sendTelegramMessage(
-            telegramToken,
-            telegramChatId,
-
-            // Die Nachricht nennt nur noch die verbleibenden freien Keys
-            `Warnung: Nur noch ${free} freie Keys. ` +
-
-
-              'Zum Dashboard: http://localhost:3000/'
-          )
+          .sendTelegramMessage(telegramToken, telegramChatId, text)
           .catch(() => {});
         lastWarned = limit;
         await saveData();
@@ -103,6 +101,13 @@ async function buildServer(options = {}) {
         keys = parsed.keys || [];
         lastWarned =
           typeof parsed.lastWarned === 'number' ? parsed.lastWarned : Infinity;
+        if (parsed.telegramConfig) {
+          telegramConfig.thresholds = Array.isArray(parsed.telegramConfig.thresholds)
+            ? parsed.telegramConfig.thresholds
+            : telegramConfig.thresholds;
+          telegramConfig.messageTemplate =
+            parsed.telegramConfig.messageTemplate || telegramConfig.messageTemplate;
+        }
       }
       const maxId = keys.reduce((max, k) => Math.max(max, k.id), 0);
       nextId = maxId + 1;
@@ -124,6 +129,7 @@ async function buildServer(options = {}) {
     const data = {
       lastWarned: isFinite(lastWarned) ? lastWarned : null,
       keys,
+      telegramConfig,
     };
     await fs.writeFile(dbFile, JSON.stringify(data, null, 2));
   }
@@ -359,6 +365,25 @@ async function buildServer(options = {}) {
     // Löschvorgang im Log festhalten
     app.log.info({ key: keyValue }, 'Key gelöscht');
     return { success: true };
+  });
+
+  // ----- Telegram-Einstellungen -----
+  // Liefert die aktuell gespeicherte Konfiguration zurück
+  app.get('/telegram/settings', async () => {
+    return telegramConfig;
+  });
+
+  // Aktualisiert Schwellenwerte und Nachrichtentext
+  app.put('/telegram/settings', async (request) => {
+    const { thresholds, messageTemplate } = request.body || {};
+    if (Array.isArray(thresholds) && thresholds.every((n) => Number.isFinite(n))) {
+      telegramConfig.thresholds = thresholds;
+    }
+    if (typeof messageTemplate === 'string') {
+      telegramConfig.messageTemplate = messageTemplate;
+    }
+    await saveData();
+    return telegramConfig;
   });
 
   return app;

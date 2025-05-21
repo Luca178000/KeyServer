@@ -166,4 +166,33 @@ describe('Telegram Integration', () => {
     delete process.env.TELEGRAM_CHAT_ID;
   });
 
+  test('GET /telegram/settings liefert Standardwerte', async () => {
+    const { app } = await createServerWithKeys(0);
+    const res = await app.inject('/telegram/settings');
+    expect(res.statusCode).toBe(200);
+    const cfg = JSON.parse(res.payload);
+    expect(cfg.thresholds).toEqual([20, 10]);
+    expect(typeof cfg.messageTemplate).toBe('string');
+    await app.close();
+  });
+
+  test('PUT /telegram/settings speichert neue Konfiguration', async () => {
+    const { app, dbPath } = await createServerWithKeys(0);
+    const payload = { thresholds: [15, 5], messageTemplate: 'Noch {free} frei' };
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/telegram/settings',
+      payload,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    expect(res.statusCode).toBe(200);
+    const cfg = JSON.parse(res.payload);
+    expect(cfg.thresholds).toEqual([15, 5]);
+    expect(cfg.messageTemplate).toBe('Noch {free} frei');
+    const stored = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    expect(stored.telegramConfig.thresholds).toEqual([15, 5]);
+    expect(stored.telegramConfig.messageTemplate).toBe('Noch {free} frei');
+    await app.close();
+  });
+
 });

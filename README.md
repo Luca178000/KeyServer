@@ -199,6 +199,12 @@ neuem. Die Telegram-Nachricht gibt nur noch die Anzahl der aktuell freien Keys
 an und enthält einen Link zum Dashboard
 (`http://localhost:3000/`).
 
+Die Schwellenwerte sowie der Nachrichtentext können über die Endpunkte
+`GET /telegram/settings` und `PUT /telegram/settings` angepasst werden. Die
+PUT-Variante erwartet ein JSON-Objekt mit den Feldern `thresholds` (Array von
+Zahlen) und `messageTemplate`. In letzterem wird die Platzhaltervariable
+`{free}` durch die aktuelle Zahl freier Keys ersetzt.
+
 
 ## Tests
 

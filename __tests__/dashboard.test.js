@@ -167,6 +167,19 @@ describe('Dashboard', () => {
     expect(box.children[1].textContent).toBe('📋');
   });
 
+  test('copyKey nutzt clipboard.writeText mit korrektem Text', async () => {
+    const html = await fs.readFile(path.join(__dirname, '../public/index.html'), 'utf8');
+    const { JSDOM } = require('../test-utils/fake-dom');
+    const dom = new JSDOM(html, { runScripts: 'dangerously' });
+
+    const spy = jest.fn().mockResolvedValue();
+    dom.window.navigator.clipboard.writeText = spy;
+    await dom.window.copyKey('TESTKEY');
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith('TESTKEY');
+  });
+
   test('loadStats ruft /stats auf und füllt die Tabelle', async () => {
     const html = await fs.readFile(path.join(__dirname, '../public/index.html'), 'utf8');
     const { JSDOM } = require('../test-utils/fake-dom');

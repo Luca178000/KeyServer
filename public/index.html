@@ -251,11 +251,33 @@
     b.onclick=cb; return b;
   }
 
+  /**
+   * Kopiert den gegebenen Text in die Zwischenablage.
+   *
+   * Zuerst wird versucht, die moderne Clipboard-API zu verwenden. Sollte dies
+   * scheitern (beispielsweise in \xE4lteren Browsern), wird ein unsichtbares
+   * Textfeld erstellt, dessen Inhalt markiert und anschlie\xDFend mittels
+   * `document.execCommand('copy')` kopiert wird. Nach dem Vorgang wird das
+   * Hilfselement direkt wieder entfernt.
+   */
+  async function copyKey(text){
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      const ta=document.createElement('textarea');
+      ta.value=text;
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta);
+    }
+  }
+
   function showFreeKey(txt){
     const box=document.getElementById('freeKey'); box.innerHTML='';
     if(!txt) return;
     const span=document.createElement('span'); span.textContent=txt;
-    const copy=createActionButton('📋','icon-copy',()=>navigator.clipboard.writeText(txt),'Kopieren');
+    const copy=createActionButton('📋','icon-copy',()=>copyKey(txt),'Kopieren');
     box.append(span,copy);
   }
 
@@ -279,7 +301,7 @@
         createActionButton('✔️','icon-use',()=>markKeyInUse(k.key, prompt('Zugewiesen an?')||''),'Benutzen'),
         createActionButton('↩️','icon-release',()=>releaseKey(k.key),'Freigeben'),
         createActionButton('🗑️','icon-delete',()=>deleteKey(k.key),'Löschen'),
-        createActionButton('📋','icon-copy',()=>navigator.clipboard.writeText(k.key),'Kopieren'),
+        createActionButton('📋','icon-copy',()=>copyKey(k.key),'Kopieren'),
         createActionButton('📜','icon-history',()=>{showHistory(k.key);document.querySelector('[data-tab="history"]').click();},'Historie')
       );
       row.appendChild(acts); el.appendChild(row);

@@ -1,14 +1,19 @@
 const fastify = require('fastify');
 const fs = require('fs/promises');
 const path = require('path');
+// Pino wird verwendet, um wahlweise in eine Logdatei zu schreiben
+const pino = require('pino');
 
 async function buildServer(options = {}) {
   const {
     logger = false,
     dbFile = path.join(__dirname, 'db.json'),
+    logFile,
   } = options;
 
-  const app = fastify({ logger });
+  // Wird ein Dateipfad angegeben, schreibt der Logger dahin
+  const destination = logFile ? pino.destination(logFile) : undefined;
+  const app = fastify({ logger: destination ? { stream: destination } : logger });
 
   app.register(require('@fastify/static'), {
     root: path.join(__dirname, 'public'),

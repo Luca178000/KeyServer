@@ -69,6 +69,10 @@ async function buildServer(options = {}) {
   }
 
   await loadData();
+  // Direkt nach dem Laden der bestehenden Daten prüfen wir, ob bereits
+  // weniger als THRESHOLD freie Keys vorhanden sind. Ist dies der Fall,
+  // wird sofort eine Telegram-Warnung verschickt.
+  notifyIfLow();
 
   app.get('/keys', async (request) => {
     let result = keys;

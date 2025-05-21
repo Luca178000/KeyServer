@@ -45,7 +45,7 @@ describe('Telegram Integration', () => {
     );
   });
 
-  test('Server benachrichtigt bei wenig freien Keys', async () => {
+  test('Server benachrichtigt nur einmal unter zwanzig Keys', async () => {
     process.env.TELEGRAM_BOT_TOKEN = 'T';
     process.env.TELEGRAM_CHAT_ID = 'C';
     // Wir überwachen sendTelegramMessage, um den Aufruf zu zählen
@@ -55,7 +55,25 @@ describe('Telegram Integration', () => {
 
     const { app } = await createServerWithKeys(19);
     await app.inject({ method: 'PUT', url: '/keys/1/inuse', payload: {} });
-    // Ein Aufruf erfolgt bereits beim Start, ein weiterer beim Markieren des Key
+    // Meldung erfolgt nur beim ersten Unterschreiten der Schwelle
+    expect(spy).toHaveBeenCalledTimes(1);
+    await app.close();
+    spy.mockRestore();
+    delete process.env.TELEGRAM_BOT_TOKEN;
+    delete process.env.TELEGRAM_CHAT_ID;
+  });
+
+  test('Server meldet erneut bei weniger als zehn Keys', async () => {
+    process.env.TELEGRAM_BOT_TOKEN = 'T';
+    process.env.TELEGRAM_CHAT_ID = 'C';
+    const spy = jest
+      .spyOn(telegram, 'sendTelegramMessage')
+      .mockResolvedValue({ ok: true });
+
+    const { app } = await createServerWithKeys(11);
+    await app.inject({ method: 'PUT', url: '/keys/1/inuse', payload: {} });
+    await app.inject({ method: 'PUT', url: '/keys/2/inuse', payload: {} });
+    // Erst beim Fallen unter zehn folgt eine zweite Warnung
     expect(spy).toHaveBeenCalledTimes(2);
     await app.close();
     spy.mockRestore();

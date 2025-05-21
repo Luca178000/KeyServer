@@ -21,18 +21,37 @@ async function buildServer(options = {}) {
   // Token und Chat-ID für Telegram aus Umgebungsvariablen auslesen
   const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
   const telegramChatId = process.env.TELEGRAM_CHAT_ID;
-  const THRESHOLD = 20;
+  // Zwei Schwellenwerte für Benachrichtigungen
+  const THRESHOLDS = [20, 10];
+  // Merkt sich, unter welchem Grenzwert zuletzt gewarnt wurde
+  let lastWarned = Infinity;
 
-  // Prüft die Zahl freier Keys und verschickt ggf. eine Warnung
+  // Prüft die Zahl freier Keys und verschickt nur einmal pro unterschrittener
+  // Schwelle eine Warnung. Steigt die Zahl wieder über 20, wird zurückgesetzt.
   function notifyIfLow() {
     const free = keys.filter((k) => !k.inUse && !k.invalid).length;
-    if (free < THRESHOLD && telegramToken && telegramChatId) {
-      // Fehler beim Senden dürfen den Server nicht stoppen
-      telegram.sendTelegramMessage(
-        telegramToken,
-        telegramChatId,
-        `Warnung: Nur noch ${free} freie Keys verfügbar.`
-      ).catch(() => {});
+
+    // Bei ausreichend vielen Keys wird der Warnzustand aufgehoben
+    if (free >= THRESHOLDS[0]) {
+      lastWarned = Infinity;
+      return;
+    }
+
+    if (!telegramToken || !telegramChatId) return;
+
+    for (const limit of THRESHOLDS) {
+      if (free < limit && limit < lastWarned) {
+        // Fehler beim Senden dürfen den Server nicht stoppen
+        telegram
+          .sendTelegramMessage(
+            telegramToken,
+            telegramChatId,
+            `Warnung: Nur noch ${free} freie Keys verfügbar.`
+          )
+          .catch(() => {});
+        lastWarned = limit;
+        break;
+      }
     }
   }
 

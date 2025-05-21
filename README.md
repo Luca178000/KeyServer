@@ -180,8 +180,9 @@ Damit schreibt Pino alle Logeinträge in die angegebene Datei.
 ## Telegram-Benachrichtigung
 
 Ist ein Bot-Token sowie eine Chat-ID hinterlegt, informiert der Server per
-Telegram, sobald weniger als 20 freie Keys vorhanden sind. Dies wird sowohl
-beim laufenden Betrieb als auch direkt beim Start des Servers geprüft. Dazu müssen folgende
+Telegram, sobald erstmals weniger als 20 freie Keys vorhanden sind. Fällt der
+Bestand später unter zehn, wird ein weiteres Mal gewarnt. Diese Prüfung erfolgt
+sowohl beim laufenden Betrieb als auch direkt beim Start des Servers. Dazu müssen folgende
 Variablen gesetzt werden:
 
 ```bash
@@ -189,8 +190,9 @@ export TELEGRAM_BOT_TOKEN="<TOKEN>"
 export TELEGRAM_CHAT_ID="<CHAT_ID>"
 ```
 
-Sinkt der Bestand unter die genannte Schwelle, verschickt der Server automatisch
-eine Warnung an das angegebene Konto.
+Die Warnungen werden nur einmal je Schwelle versendet, um wiederholte Meldungen
+zu vermeiden. Steigt die Zahl freier Keys über zwanzig, beginnt die Zählung von
+neuem.
 
 ## Tests
 

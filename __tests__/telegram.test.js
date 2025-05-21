@@ -55,6 +55,24 @@ describe('Telegram Integration', () => {
 
     const { app } = await createServerWithKeys(19);
     await app.inject({ method: 'PUT', url: '/keys/1/inuse', payload: {} });
+    // Ein Aufruf erfolgt bereits beim Start, ein weiterer beim Markieren des Key
+    expect(spy).toHaveBeenCalledTimes(2);
+    await app.close();
+    spy.mockRestore();
+    delete process.env.TELEGRAM_BOT_TOKEN;
+    delete process.env.TELEGRAM_CHAT_ID;
+  });
+
+  test('Warnung bereits beim Start bei zu wenigen Keys', async () => {
+    process.env.TELEGRAM_BOT_TOKEN = 'T';
+    process.env.TELEGRAM_CHAT_ID = 'C';
+    const spy = jest
+      .spyOn(telegram, 'sendTelegramMessage')
+      .mockResolvedValue({ ok: true });
+
+    const { app } = await createServerWithKeys(18);
+    // Kurze Pause, damit der asynchrone Aufruf verarbeitet wird
+    await new Promise((r) => setImmediate(r));
     expect(spy).toHaveBeenCalledTimes(1);
     await app.close();
     spy.mockRestore();

@@ -54,7 +54,7 @@ describe('Telegram Integration', () => {
       .mockResolvedValue({ ok: true });
 
     const { app } = await createServerWithKeys(19);
-    await app.inject({ method: 'PUT', url: '/keys/1/inuse', payload: {} });
+    await app.inject({ method: 'PUT', url: '/keys/AAAAA-BBBBB-CCCCC-DDDDD-00000/inuse', payload: {} });
     // Meldung erfolgt nur beim ersten Unterschreiten der Schwelle
     expect(spy).toHaveBeenCalledTimes(1);
     await app.close();
@@ -71,8 +71,8 @@ describe('Telegram Integration', () => {
       .mockResolvedValue({ ok: true });
 
     const { app } = await createServerWithKeys(11);
-    await app.inject({ method: 'PUT', url: '/keys/1/inuse', payload: {} });
-    await app.inject({ method: 'PUT', url: '/keys/2/inuse', payload: {} });
+    await app.inject({ method: 'PUT', url: '/keys/AAAAA-BBBBB-CCCCC-DDDDD-00000/inuse', payload: {} });
+    await app.inject({ method: 'PUT', url: '/keys/AAAAA-BBBBB-CCCCC-DDDDD-00001/inuse', payload: {} });
     // Erst beim Fallen unter zehn folgt eine zweite Warnung
     expect(spy).toHaveBeenCalledTimes(2);
     await app.close();

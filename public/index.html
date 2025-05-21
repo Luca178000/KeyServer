@@ -81,7 +81,7 @@
       <section>
         <h2>Key als benutzt markieren</h2>
         <form id="markInUseForm">
-          <input type="number" id="keyId" placeholder="ID">
+          <input type="text" id="keyValue" placeholder="Key">
           <input type="text" id="assignedTo" placeholder="Zugewiesen an">
           <button type="submit">Markieren</button>
         </form>
@@ -91,7 +91,7 @@
       <section>
         <h2>Key freigeben</h2>
         <form id="releaseForm">
-          <input type="number" id="releaseId" placeholder="ID">
+          <input type="text" id="releaseKey" placeholder="Key">
           <button type="submit">Freigeben</button>
         </form>
         <div id="releaseResult" class="result-box"></div>
@@ -100,7 +100,7 @@
       <section>
         <h2>Key ungültig markieren</h2>
         <form id="invalidateForm">
-          <input type="number" id="invalidateId" placeholder="ID">
+          <input type="text" id="invalidateKey" placeholder="Key">
           <button type="submit">Ungültig</button>
         </form>
         <div id="invalidateResult" class="result-box"></div>
@@ -109,7 +109,7 @@
       <section>
         <h2>Key löschen</h2>
         <form id="deleteForm">
-          <input type="number" id="deleteId" placeholder="ID">
+          <input type="text" id="deleteKey" placeholder="Key">
           <button type="submit">Löschen</button>
         </form>
         <div id="deleteResult" class="result-box"></div>
@@ -207,12 +207,12 @@
       const acts=document.createElement('div'); acts.className='key-actions';
 
       acts.append(
-        createActionButton('✔️','icon-use',()=>markKeyInUse(k.id, prompt('Zugewiesen an?')||''),'Benutzen'),
-        createActionButton('↩️','icon-release',()=>releaseKey(k.id),'Freigeben'),
-        createActionButton('🚫','icon-invalidate',()=>invalidateKey(k.id),'Ungültig'),
-        createActionButton('🗑️','icon-delete',()=>deleteKey(k.id),'Löschen'),
+        createActionButton('✔️','icon-use',()=>markKeyInUse(k.key, prompt('Zugewiesen an?')||''),'Benutzen'),
+        createActionButton('↩️','icon-release',()=>releaseKey(k.key),'Freigeben'),
+        createActionButton('🚫','icon-invalidate',()=>invalidateKey(k.key),'Ungültig'),
+        createActionButton('🗑️','icon-delete',()=>deleteKey(k.key),'Löschen'),
         createActionButton('📋','icon-copy',()=>navigator.clipboard.writeText(k.key),'Kopieren'),
-        createActionButton('📜','icon-history',()=>{showHistory(k.id);document.querySelector('[data-tab="history"]').click();},'Historie')
+        createActionButton('📜','icon-history',()=>{showHistory(k.key);document.querySelector('[data-tab="history"]').click();},'Historie')
       );
       row.appendChild(acts); el.appendChild(row);
     });
@@ -221,30 +221,30 @@
   async function loadFreeList(){ renderList('listFree','/keys/free/list'); }
   async function loadActiveList(){ renderList('listActive','/keys/active/list'); }
 
-  async function markKeyInUse(id,assignedTo=''){
-    const r=await fetch(`/keys/${id}/inuse`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({assignedTo})});
+  async function markKeyInUse(key,assignedTo=''){
+    const r=await fetch(`/keys/${key}/inuse`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({assignedTo})});
     const d=await r.json(); displayJson('inUseResult',d);
-    updateStats(); loadFreeList(); loadActiveList(); showHistory(id);
+    updateStats(); loadFreeList(); loadActiveList(); showHistory(key);
   }
 
-  async function releaseKey(id){
-    const r=await fetch(`/keys/${id}/release`,{method:'PUT'}); const d=await r.json();
-    displayJson('releaseResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(id);
+  async function releaseKey(key){
+    const r=await fetch(`/keys/${key}/release`,{method:'PUT'}); const d=await r.json();
+    displayJson('releaseResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(key);
   }
 
-  async function invalidateKey(id){
-    const r=await fetch(`/keys/${id}/invalidate`,{method:'PUT'}); const d=await r.json();
-    displayJson('invalidateResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(id);
+  async function invalidateKey(key){
+    const r=await fetch(`/keys/${key}/invalidate`,{method:'PUT'}); const d=await r.json();
+    displayJson('invalidateResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(key);
   }
 
-  async function deleteKey(id){
-    const r=await fetch(`/keys/${id}`,{method:'DELETE'}); const d=await r.json();
+  async function deleteKey(key){
+    const r=await fetch(`/keys/${key}`,{method:'DELETE'}); const d=await r.json();
     displayJson('deleteResult',d); updateStats(); loadFreeList(); loadActiveList(); document.getElementById('historyLog').textContent='';
   }
 
-  async function showHistory(id){
-    if(!id) return;
-    const r=await fetch(`/keys/${id}/history`); const h=await r.json();
+  async function showHistory(key){
+    if(!key) return;
+    const r=await fetch(`/keys/${key}/history`); const h=await r.json();
     displayJson('historyLog',h);
   }
 
@@ -264,7 +264,7 @@
     const keys=raw.split(/\r?\n/).map(k=>k.trim()).filter(Boolean);
     const r=await fetch('/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keys})});
     const d=await r.json(); displayJson('addKeyResult',d);
-    updateStats(); loadFreeList(); loadActiveList(); if(d.length) showHistory(d[0].id);
+    updateStats(); loadFreeList(); loadActiveList(); if(d.length) showHistory(d[0].key);
   };
 
   document.getElementById('getFreeKey').onclick=async()=>{
@@ -274,12 +274,12 @@
 
   document.getElementById('markInUseForm').onsubmit=e=>{
     e.preventDefault();
-    markKeyInUse(document.getElementById('keyId').value,document.getElementById('assignedTo').value);
+    markKeyInUse(document.getElementById('keyValue').value,document.getElementById('assignedTo').value);
   };
 
-  document.getElementById('releaseForm').onsubmit=e=>{ e.preventDefault(); releaseKey(document.getElementById('releaseId').value); };
-  document.getElementById('invalidateForm').onsubmit=e=>{ e.preventDefault(); invalidateKey(document.getElementById('invalidateId').value); };
-  document.getElementById('deleteForm').onsubmit=e=>{ e.preventDefault(); deleteKey(document.getElementById('deleteId').value); };
+  document.getElementById('releaseForm').onsubmit=e=>{ e.preventDefault(); releaseKey(document.getElementById('releaseKey').value); };
+  document.getElementById('invalidateForm').onsubmit=e=>{ e.preventDefault(); invalidateKey(document.getElementById('invalidateKey').value); };
+  document.getElementById('deleteForm').onsubmit=e=>{ e.preventDefault(); deleteKey(document.getElementById('deleteKey').value); };
 
   /* ----------------- Initial Load ----------------- */
   document.addEventListener('DOMContentLoaded',()=>{

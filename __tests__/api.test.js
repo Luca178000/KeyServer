@@ -84,7 +84,7 @@ describe('Key Server API', () => {
     expect(stored.keys).toHaveLength(2);
   });
 
-  test('GET /keys/free and PUT /keys/:id/inuse', async () => {
+  test('GET /keys/free and PUT /keys/:key/inuse', async () => {
     const { app, dbPath } = await createServer();
     const k1 = 'AAAAA-AAAAA-AAAAA-AAAAA-00001';
     const k2 = 'AAAAA-AAAAA-AAAAA-AAAAA-00002';
@@ -100,7 +100,7 @@ describe('Key Server API', () => {
 
     const mark = await app.inject({
       method: 'PUT',
-      url: `/keys/${created1.id}/inuse`,
+      url: `/keys/${created1.key}/inuse`,
       payload: { assignedTo: 'Max' },
     });
     expect(mark.statusCode).toBe(200);
@@ -110,7 +110,7 @@ describe('Key Server API', () => {
     expect(updated.history).toHaveLength(2);
     expect(updated.history[1]).toMatchObject({ action: 'inuse', assignedTo: 'Max' });
 
-    const histRes = await app.inject(`/keys/${created1.id}/history`);
+    const histRes = await app.inject(`/keys/${created1.key}/history`);
     const hist = JSON.parse(histRes.payload);
     expect(hist).toHaveLength(2);
 
@@ -118,7 +118,7 @@ describe('Key Server API', () => {
     const nextText = nextFree.payload;
     expect(nextText).toBe(k2);
 
-    await app.inject({ method: 'PUT', url: `/keys/${created2.id}/inuse`, payload: {} });
+    await app.inject({ method: 'PUT', url: `/keys/${created2.key}/inuse`, payload: {} });
     const none = await app.inject('/keys/free');
     expect(none.statusCode).toBe(404);
 
@@ -144,7 +144,7 @@ describe('Key Server API', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  test('DELETE /keys/:id removes a key', async () => {
+  test('DELETE /keys/:key removes a key', async () => {
     const { app, dbPath } = await createServer();
     const k1 = 'BBBBB-BBBBB-BBBBB-BBBBB-BBBBB';
     const k2 = 'CCCCC-CCCCC-CCCCC-CCCCC-CCCCC';
@@ -152,7 +152,7 @@ describe('Key Server API', () => {
     const two = await app.inject({ method: 'POST', url: '/keys', payload: { key: k2 } });
     const first = JSON.parse(one.payload)[0];
 
-    const del = await app.inject({ method: 'DELETE', url: `/keys/${first.id}` });
+    const del = await app.inject({ method: 'DELETE', url: `/keys/${first.key}` });
     expect(del.statusCode).toBe(200);
 
     const list = await app.inject('/keys');
@@ -165,13 +165,13 @@ describe('Key Server API', () => {
     expect(persisted.keys[0].key).toBe(k2);
   });
 
-  test('PUT /keys/:id/invalidate marks key as invalid', async () => {
+  test('PUT /keys/:key/invalidate marks key as invalid', async () => {
     const { app, dbPath } = await createServer();
     const invalidKey = 'DDDDD-DDDDD-DDDDD-DDDDD-DDDDD';
     const res = await app.inject({ method: 'POST', url: '/keys', payload: { key: invalidKey } });
     const created = JSON.parse(res.payload)[0];
 
-    const inv = await app.inject({ method: 'PUT', url: `/keys/${created.id}/invalidate` });
+    const inv = await app.inject({ method: 'PUT', url: `/keys/${created.key}/invalidate` });
     expect(inv.statusCode).toBe(200);
     const updated = JSON.parse(inv.payload);
     expect(updated.invalid).toBe(true);
@@ -192,7 +192,7 @@ describe('Key Server API', () => {
     const second = JSON.parse(two.payload)[0];
 
     // Ersten Key ungültig setzen
-    await app.inject({ method: 'PUT', url: `/keys/${first.id}/invalidate` });
+    await app.inject({ method: 'PUT', url: `/keys/${first.key}/invalidate` });
 
     const free = await app.inject('/keys/free');
     expect(free.statusCode).toBe(200);
@@ -201,7 +201,7 @@ describe('Key Server API', () => {
     expect(keyText).toBe(k2);
 
     // Zweiten Key in Benutzung setzen, danach sollte keiner mehr frei sein
-    await app.inject({ method: 'PUT', url: `/keys/${second.id}/inuse`, payload: {} });
+    await app.inject({ method: 'PUT', url: `/keys/${second.key}/inuse`, payload: {} });
     const none = await app.inject('/keys/free');
     expect(none.statusCode).toBe(404);
   });
@@ -219,8 +219,8 @@ describe('Key Server API', () => {
     const k1 = JSON.parse(one.payload)[0];
     const k3 = JSON.parse(three.payload)[0];
 
-    await app.inject({ method: 'PUT', url: `/keys/${k1.id}/inuse`, payload: { assignedTo: 'Alice' } });
-    await app.inject({ method: 'PUT', url: `/keys/${k3.id}/inuse`, payload: { assignedTo: 'Bob' } });
+    await app.inject({ method: 'PUT', url: `/keys/${k1.key}/inuse`, payload: { assignedTo: 'Alice' } });
+    await app.inject({ method: 'PUT', url: `/keys/${k3.key}/inuse`, payload: { assignedTo: 'Bob' } });
 
     const all = JSON.parse((await app.inject('/keys')).payload);
     expect(all).toHaveLength(3);
@@ -249,7 +249,7 @@ describe('Key Server API', () => {
     const one = await app.inject({ method: 'POST', url: '/keys', payload: { key: k1 } });
     const two = await app.inject({ method: 'POST', url: '/keys', payload: { key: k2 } });
     const created1 = JSON.parse(one.payload)[0];
-    await app.inject({ method: 'PUT', url: `/keys/${created1.id}/inuse`, payload: {} });
+    await app.inject({ method: 'PUT', url: `/keys/${created1.key}/inuse`, payload: {} });
 
     const list = await app.inject('/keys/free/list');
     expect(list.statusCode).toBe(200);
@@ -266,7 +266,7 @@ describe('Key Server API', () => {
     await app.inject({ method: 'POST', url: '/keys', payload: { key: k1 } });
     const b = await app.inject({ method: 'POST', url: '/keys', payload: { key: k2 } });
     const bObj = JSON.parse(b.payload)[0];
-    await app.inject({ method: 'PUT', url: `/keys/${bObj.id}/inuse`, payload: { assignedTo: 'Test' } });
+    await app.inject({ method: 'PUT', url: `/keys/${bObj.key}/inuse`, payload: { assignedTo: 'Test' } });
 
     const list = await app.inject('/keys/active/list');
     expect(list.statusCode).toBe(200);
@@ -276,14 +276,14 @@ describe('Key Server API', () => {
     expect(arr[0].assignedTo).toBe('Test');
   });
 
-  test('PUT /keys/:id/release marks key as free again', async () => {
+  test('PUT /keys/:key/release marks key as free again', async () => {
     const { app, dbPath } = await createServer();
     const relKey = 'RELEA-SEEEE-SEEEE-SEEEE-00000';
     const res = await app.inject({ method: 'POST', url: '/keys', payload: { key: relKey } });
     const created = JSON.parse(res.payload)[0];
 
-    await app.inject({ method: 'PUT', url: `/keys/${created.id}/inuse`, payload: { assignedTo: 'User' } });
-    const rel = await app.inject({ method: 'PUT', url: `/keys/${created.id}/release` });
+    await app.inject({ method: 'PUT', url: `/keys/${created.key}/inuse`, payload: { assignedTo: 'User' } });
+    const rel = await app.inject({ method: 'PUT', url: `/keys/${created.key}/release` });
     expect(rel.statusCode).toBe(200);
     const updated = JSON.parse(rel.payload);
     expect(updated.inUse).toBe(false);
@@ -311,14 +311,14 @@ describe('Key Server API', () => {
       body: JSON.stringify({ key: 'FFFFF-FFFFF-FFFFF-FFFFF-00001' })
     });
     const created = (await create.json())[0];
-    await fetch(`http://127.0.0.1:${port}/keys/${created.id}/inuse`, {
+    await fetch(`http://127.0.0.1:${port}/keys/${created.key}/inuse`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ assignedTo: 'Tester' })
     });
 
     // Ablauf wie im Dashboard: Key wieder freigeben
-    const rel = await fetch(`http://127.0.0.1:${port}/keys/${created.id}/release`, { method: 'PUT' });
+    const rel = await fetch(`http://127.0.0.1:${port}/keys/${created.key}/release`, { method: 'PUT' });
     const data = await rel.json();
 
     expect(data.inUse).toBe(false);
@@ -343,7 +343,7 @@ describe('Key Server API', () => {
     const created = (await create.json())[0];
 
     // L\xC3\xB6schen wie im Dashboard
-    const del = await fetch(`http://127.0.0.1:${port}/keys/${created.id}`, { method: 'DELETE' });
+    const del = await fetch(`http://127.0.0.1:${port}/keys/${created.key}`, { method: 'DELETE' });
     const data = await del.json();
 
     expect(data.success).toBe(true);
@@ -377,7 +377,7 @@ describe('Key Server API', () => {
     });
     const b = (await bRes.json())[0];
 
-    await fetch(`http://127.0.0.1:${port}/keys/${a.id}/inuse`, {
+    await fetch(`http://127.0.0.1:${port}/keys/${a.key}/inuse`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ assignedTo: 'Tester' })
@@ -387,19 +387,19 @@ describe('Key Server API', () => {
     const usedRes = await fetch(`http://127.0.0.1:${port}/keys?inUse=true`);
     const used = await usedRes.json();
     expect(used).toHaveLength(1);
-    expect(used[0].id).toBe(a.id);
+    expect(used[0].key).toBe(a.key);
 
     // Filter nach Name
     const nameRes = await fetch(`http://127.0.0.1:${port}/keys?assignedTo=Tester`);
     const byName = await nameRes.json();
     expect(byName).toHaveLength(1);
-    expect(byName[0].id).toBe(a.id);
+    expect(byName[0].key).toBe(a.key);
 
     // Beide Parameter kombiniert
     const comboRes = await fetch(`http://127.0.0.1:${port}/keys?inUse=true&assignedTo=Tester`);
     const combo = await comboRes.json();
     expect(combo).toHaveLength(1);
-    expect(combo[0].id).toBe(a.id);
+    expect(combo[0].key).toBe(a.key);
 
     await app.close();
   });
@@ -420,7 +420,7 @@ describe('Key Server API', () => {
     const created = (await create.json())[0];
 
     // Im Dashboard wird der Key per Button als ungültig markiert
-    const inv = await fetch(`http://127.0.0.1:${port}/keys/${created.id}/invalidate`, { method: 'PUT' });
+    const inv = await fetch(`http://127.0.0.1:${port}/keys/${created.key}/invalidate`, { method: 'PUT' });
     const data = await inv.json();
 
     expect(data.invalid).toBe(true);
@@ -434,33 +434,33 @@ describe('Key Server API', () => {
 
   // Tests für Endpunkte mit unbekannter ID
   describe('Fehlerfälle', () => {
-    test('PUT /keys/999/inuse liefert 404', async () => {
+    test('PUT /keys/UNKNOWN/inuse liefert 404', async () => {
       const { app } = await createServer();
-      const res = await app.inject({ method: 'PUT', url: '/keys/999/inuse', payload: {} });
+      const res = await app.inject({ method: 'PUT', url: '/keys/UNKNOWN/inuse', payload: {} });
       expect(res.statusCode).toBe(404);
     });
 
-    test('PUT /keys/999/release liefert 404', async () => {
+    test('PUT /keys/UNKNOWN/release liefert 404', async () => {
       const { app } = await createServer();
-      const res = await app.inject({ method: 'PUT', url: '/keys/999/release' });
+      const res = await app.inject({ method: 'PUT', url: '/keys/UNKNOWN/release' });
       expect(res.statusCode).toBe(404);
     });
 
-    test('PUT /keys/999/invalidate liefert 404', async () => {
+    test('PUT /keys/UNKNOWN/invalidate liefert 404', async () => {
       const { app } = await createServer();
-      const res = await app.inject({ method: 'PUT', url: '/keys/999/invalidate' });
+      const res = await app.inject({ method: 'PUT', url: '/keys/UNKNOWN/invalidate' });
       expect(res.statusCode).toBe(404);
     });
 
-    test('DELETE /keys/999 liefert 404', async () => {
+    test('DELETE /keys/UNKNOWN liefert 404', async () => {
       const { app } = await createServer();
-      const res = await app.inject({ method: 'DELETE', url: '/keys/999' });
+      const res = await app.inject({ method: 'DELETE', url: '/keys/UNKNOWN' });
       expect(res.statusCode).toBe(404);
     });
 
-    test('GET /keys/999/history liefert 404', async () => {
+    test('GET /keys/UNKNOWN/history liefert 404', async () => {
       const { app } = await createServer();
-      const res = await app.inject('/keys/999/history');
+      const res = await app.inject('/keys/UNKNOWN/history');
       expect(res.statusCode).toBe(404);
     });
   });

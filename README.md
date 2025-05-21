@@ -52,16 +52,17 @@ Textfeld kann zudem nach dem Wert des Feldes `assignedTo` gefiltert werden.
 Beim Klick auf **Laden** werden diese Angaben als Query-Parameter an den
 Endpunkt `/keys` angehängt und das Ergebnis direkt angezeigt.
 
-Außerdem steht ein Formular **Key freigeben** bereit. Mit Eingabe einer ID
-schickt es einen PUT-Request auf `/keys/:id/release`, markiert den Key damit als
-frei und zeigt die Antwort direkt unter dem Formular an.
+Außerdem steht ein Formular **Key freigeben** bereit. Mit Eingabe des
+Windows-Keys schickt es einen PUT-Request auf `/keys/:key/release`, markiert den
+Eintrag damit als frei und zeigt die Antwort direkt unter dem Formular an.
 
-Neu hinzugekommen ist ein weiteres Formular **Key löschen**, das eine
-ID entgegennimmt und damit einen `DELETE`-Request auf `/keys/:id` ausführt.
+Neu hinzugekommen ist ein weiteres Formular **Key löschen**, das den
+Schlüssel entgegennimmt und damit einen `DELETE`-Request auf `/keys/:key`
+ausführt.
 Das Ergebnis wird ebenfalls im Dashboard angezeigt.
 
-Ebenfalls verfügbar ist nun ein Formular **Key ungültig**, das eine ID annimmt
-und per Button einen `PUT`-Request auf `/keys/:id/invalidate` sendet. Dadurch
+Ebenfalls verfügbar ist nun ein Formular **Key ungültig**, das einen Key annimmt
+und per Button einen `PUT`-Request auf `/keys/:key/invalidate` sendet. Dadurch
 wird der gewählte Key dauerhaft als unbrauchbar markiert. Die Serverantwort wird
 unter dem Formular dargestellt.
 
@@ -121,26 +122,26 @@ Gibt eine komplette Liste aller momentan freien Keys zurück. Die Antwort ist ei
 ### GET `/keys/active/list`
 Liefert alle Keys, die aktuell in Benutzung sind (`inUse=true`). Auch hier wird ein Array von Key-Objekten zurückgegeben.
 
-### GET `/keys/:id/history`
-Gibt die komplette Historie eines Keys zurück. Die Antwort ist ein Array mit Einträgen der Form `{ action, timestamp, assignedTo }`. Ist die ID unbekannt, antwortet der Server mit Statuscode `404`.
+### GET `/keys/:key/history`
+Gibt die komplette Historie eines Keys zurück. Die Antwort ist ein Array mit Einträgen der Form `{ action, timestamp, assignedTo }`. Ist der Key unbekannt, antwortet der Server mit Statuscode `404`.
 
-### PUT `/keys/:id/inuse`
-Markiert einen Key als in Benutzung. Die ID wird in der URL angegeben. Im Request-Body kann ein Feld `assignedTo` übergeben werden, um zu notieren, wer den Key verwendet:
+### PUT `/keys/:key/inuse`
+Markiert einen Key als in Benutzung. Der Windows-Key wird in der URL angegeben. Im Request-Body kann ein Feld `assignedTo` übergeben werden, um zu notieren, wer den Key verwendet:
 ```json
 { "assignedTo": "Max" }
 ```
-Die Antwort enthält das aktualisierte Key-Objekt. Bei unbekannter ID wird ein 404-Statuscode zurückgegeben.
+Die Antwort enthält das aktualisierte Key-Objekt. Bei unbekanntem Key wird ein 404-Statuscode zurückgegeben.
 
-### PUT `/keys/:id/release`
+### PUT `/keys/:key/release`
 Setzt einen zuvor belegten Key wieder auf frei. `inUse` wird dabei auf `false` gesetzt und das Feld `assignedTo` geleert. In der History wird ein Eintrag mit der Aktion `release` und Zeitstempel gespeichert. Die Antwort enthält den aktualisierten Key.
 
-### PUT `/keys/:id/invalidate`
+### PUT `/keys/:key/invalidate`
 Markiert einen bestehenden Key dauerhaft als ungültig. Ein so gekennzeichneter
 Eintrag wird von `/keys/free` ignoriert und kann nicht mehr genutzt werden. Die
 Antwort enthält das aktualisierte Key-Objekt mit dem Feld `invalid=true`.
 
-### DELETE `/keys/:id`
-Entfernt einen Key dauerhaft aus der Datenbank. Bei Erfolg wird `{ success: true }` zurückgegeben. Ist die ID unbekannt, lautet der Statuscode `404`.
+### DELETE `/keys/:key`
+Entfernt einen Key dauerhaft aus der Datenbank. Bei Erfolg wird `{ success: true }` zurückgegeben. Ist der Key unbekannt, lautet der Statuscode `404`.
 
 ## Datenstruktur
 

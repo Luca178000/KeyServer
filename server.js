@@ -230,10 +230,12 @@ async function buildServer(options = {}) {
     return active;
   });
 
-  app.put('/keys/:id/inuse', async (request, reply) => {
-    const id = parseInt(request.params.id, 10);
+  // Setzt einen Key anhand seines Textwerts auf "in Benutzung"
+  // Der Key selbst wird direkt in der URL angegeben
+  app.put('/keys/:key/inuse', async (request, reply) => {
+    const keyValue = request.params.key;
     const { assignedTo } = request.body || {};
-    const keyEntry = keys.find((k) => k.id === id);
+    const keyEntry = keys.find((k) => k.key === keyValue);
 
     if (!keyEntry) {
       reply.code(404);
@@ -253,14 +255,16 @@ async function buildServer(options = {}) {
     await notifyIfLow();
 
     // Meldet im Log, dass der Key nun benutzt wird
-    app.log.info({ id, assignedTo: keyEntry.assignedTo }, 'Key als benutzt markiert');
+    // Im Log wird der verwendete Key ausgegeben
+    app.log.info({ key: keyValue, assignedTo: keyEntry.assignedTo }, 'Key als benutzt markiert');
     return keyEntry;
   });
 
   // Setzt einen Key wieder auf "frei" und entfernt die Zuweisung
-  app.put('/keys/:id/release', async (request, reply) => {
-    const id = parseInt(request.params.id, 10);
-    const keyEntry = keys.find((k) => k.id === id);
+  // Auch hier wird der Key direkt als Parameter verwendet
+  app.put('/keys/:key/release', async (request, reply) => {
+    const keyValue = request.params.key;
+    const keyEntry = keys.find((k) => k.key === keyValue);
 
     if (!keyEntry) {
       reply.code(404);
@@ -276,13 +280,15 @@ async function buildServer(options = {}) {
     await saveData();
 
     // Protokolliert die Freigabe eines Keys
-    app.log.info({ id }, 'Key wieder freigegeben');
+    // Im Log den Key ausgeben
+    app.log.info({ key: keyValue }, 'Key wieder freigegeben');
     return keyEntry;
   });
 
-  app.get('/keys/:id/history', async (request, reply) => {
-    const id = parseInt(request.params.id, 10);
-    const keyEntry = keys.find((k) => k.id === id);
+  // Liefert die Historie eines bestimmten Keys
+  app.get('/keys/:key/history', async (request, reply) => {
+    const keyValue = request.params.key;
+    const keyEntry = keys.find((k) => k.key === keyValue);
     if (!keyEntry) {
       reply.code(404);
       return { error: 'Key nicht gefunden' };
@@ -292,9 +298,9 @@ async function buildServer(options = {}) {
 
   // Markiert einen Key dauerhaft als ungültig
   // Im Dashboard wird dieser Endpunkt über den Button "Key ungültig" aufgerufen
-  app.put('/keys/:id/invalidate', async (request, reply) => {
-    const id = parseInt(request.params.id, 10);
-    const keyEntry = keys.find((k) => k.id === id);
+  app.put('/keys/:key/invalidate', async (request, reply) => {
+    const keyValue = request.params.key;
+    const keyEntry = keys.find((k) => k.key === keyValue);
     if (!keyEntry) {
       reply.code(404);
       return { error: 'Key nicht gefunden' };
@@ -306,9 +312,10 @@ async function buildServer(options = {}) {
     return keyEntry;
   });
 
-  app.delete('/keys/:id', async (request, reply) => {
-    const id = parseInt(request.params.id, 10);
-    const index = keys.findIndex((k) => k.id === id);
+  // Entfernt einen Key anhand seines Textwerts dauerhaft
+  app.delete('/keys/:key', async (request, reply) => {
+    const keyValue = request.params.key;
+    const index = keys.findIndex((k) => k.key === keyValue);
     if (index === -1) {
       reply.code(404);
       return { error: 'Key nicht gefunden' };
@@ -318,7 +325,8 @@ async function buildServer(options = {}) {
     await notifyIfLow();
 
     // Loggt das Löschen eines Keys
-    app.log.info({ id }, 'Key gelöscht');
+    // Löschvorgang im Log festhalten
+    app.log.info({ key: keyValue }, 'Key gelöscht');
     return { success: true };
   });
 

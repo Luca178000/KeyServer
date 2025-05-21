@@ -312,6 +312,21 @@ async function buildServer(options = {}) {
     return keyEntry.history || [];
   });
 
+  // Liefert eine zusammengefasste Historie aller Keys
+  // Jeder Eintrag enthaelt den Bezug zum urspruenglichen Key
+  // und wird nach Zeitstempel sortiert zurueckgegeben
+  app.get('/history', async () => {
+    const list = [];
+    for (const k of keys) {
+      if (!Array.isArray(k.history)) continue;
+      for (const h of k.history) {
+        list.push({ key: k.key, id: k.id, ...h });
+      }
+    }
+    list.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    return list;
+  });
+
   // Markiert einen Key dauerhaft als ungültig
   // Im Dashboard wird dieser Endpunkt über den Button "Key ungültig" aufgerufen
   app.put('/keys/:key/invalidate', async (request, reply) => {

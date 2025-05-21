@@ -167,6 +167,27 @@
     box.appendChild(pre);
   }
 
+  // Stellt eine Historienliste als übersichtliche Tabelle dar
+  function renderHistory(list){
+    const box=document.getElementById('historyLog');
+    box.innerHTML='';
+    if(!Array.isArray(list)||!list.length){ box.textContent='Keine Einträge'; return; }
+
+    const table=document.createElement('table');
+    table.className='history-table';
+    const head=document.createElement('thead');
+    head.innerHTML='<tr><th>ID</th><th>Key</th><th>Aktion</th><th>Zeitpunkt</th><th>Zugewiesen an</th></tr>';
+    table.appendChild(head);
+    const body=document.createElement('tbody');
+    for(const h of list){
+      const tr=document.createElement('tr');
+      const time=new Date(h.timestamp).toLocaleString();
+      tr.innerHTML=`<td>${h.id??''}</td><td>${h.key}</td><td>${h.action}</td><td>${time}</td><td>${h.assignedTo||''}</td>`;
+      body.appendChild(tr);
+    }
+    table.appendChild(body); box.appendChild(table);
+  }
+
   function createActionButton(icon,cls,cb,title){
     const b=document.createElement('button');
     b.className='icon-button '+cls; b.textContent=icon;
@@ -215,24 +236,31 @@
   async function markKeyInUse(key,assignedTo=''){
     const r=await fetch(`/keys/${key}/inuse`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({assignedTo})});
     const d=await r.json(); displayJson('inUseResult',d);
-    updateStats(); loadFreeList(); loadActiveList(); showHistory(key);
+    updateStats(); loadFreeList(); loadActiveList(); showHistory(key); loadGlobalHistory();
   }
 
   async function releaseKey(key){
     const r=await fetch(`/keys/${key}/release`,{method:'PUT'}); const d=await r.json();
-    displayJson('releaseResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(key);
+    displayJson('releaseResult',d); updateStats(); loadFreeList(); loadActiveList(); showHistory(key); loadGlobalHistory();
   }
 
 
   async function deleteKey(key){
     const r=await fetch(`/keys/${key}`,{method:'DELETE'}); const d=await r.json();
-    displayJson('deleteResult',d); updateStats(); loadFreeList(); loadActiveList(); document.getElementById('historyLog').textContent='';
+    displayJson('deleteResult',d); updateStats(); loadFreeList(); loadActiveList(); document.getElementById('historyLog').textContent=''; loadGlobalHistory();
   }
 
   async function showHistory(key){
     if(!key) return;
     const r=await fetch(`/keys/${key}/history`); const h=await r.json();
-    displayJson('historyLog',h);
+    renderHistory(h);
+  }
+
+  // Ruft die komplette Historie aller Keys ab und zeigt sie im Log-Bereich an
+  async function loadGlobalHistory(){
+    const r=await fetch('/history');
+    const h=await r.json();
+    renderHistory(h);
   }
 
   /* ----------------- Form Events ----------------- */
@@ -251,12 +279,12 @@
     const keys=raw.split(/\r?\n/).map(k=>k.trim()).filter(Boolean);
     const r=await fetch('/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keys})});
     const d=await r.json(); displayJson('addKeyResult',d);
-    updateStats(); loadFreeList(); loadActiveList(); if(d.length) showHistory(d[0].key);
+    updateStats(); loadFreeList(); loadActiveList(); if(d.length) showHistory(d[0].key); loadGlobalHistory();
   };
 
   document.getElementById('getFreeKey').onclick=async()=>{
     const r=await fetch('/keys/free'); const t=await r.text();
-    showFreeKey(t); updateStats(); loadFreeList(); loadActiveList();
+    showFreeKey(t); updateStats(); loadFreeList(); loadActiveList(); loadGlobalHistory();
   };
 
   document.getElementById('markInUseForm').onsubmit=e=>{
@@ -271,7 +299,7 @@
   document.addEventListener('DOMContentLoaded',()=>{
     applyTheme(localStorage.getItem('theme'));
     sidebar.classList.toggle('hidden', window.innerWidth < 850);  /* mobile default-closed */
-    updateStats(); loadFreeList(); loadActiveList();
+    updateStats(); loadFreeList(); loadActiveList(); loadGlobalHistory();
   });
   </script>
 </body>

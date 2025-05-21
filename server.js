@@ -129,6 +129,9 @@ async function buildServer(options = {}) {
     freeKey.history.push(logEntry);
     await saveData();
 
+    // Protokolliert den Abruf eines freien Keys
+    app.log.info({ id: freeKey.id }, 'Freier Key ausgegeben');
+
     // Nur den Key-String zurückgeben
     reply.type('text/plain');
     return freeKey.key;
@@ -171,6 +174,9 @@ async function buildServer(options = {}) {
       assignedTo: keyEntry.assignedTo,
     });
     await saveData();
+
+    // Meldet im Log, dass der Key nun benutzt wird
+    app.log.info({ id, assignedTo: keyEntry.assignedTo }, 'Key als benutzt markiert');
     return keyEntry;
   });
 
@@ -191,6 +197,9 @@ async function buildServer(options = {}) {
     const now = new Date().toISOString();
     keyEntry.history.push({ action: 'release', timestamp: now, assignedTo: null });
     await saveData();
+
+    // Protokolliert die Freigabe eines Keys
+    app.log.info({ id }, 'Key wieder freigegeben');
     return keyEntry;
   });
 
@@ -228,6 +237,9 @@ async function buildServer(options = {}) {
     }
     keys.splice(index, 1);
     await saveData();
+
+    // Loggt das Löschen eines Keys
+    app.log.info({ id }, 'Key gelöscht');
     return { success: true };
   });
 

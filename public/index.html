@@ -106,6 +106,16 @@
         </form>
         <div id="deleteResult" class="result-box"></div>
       </section>
+
+      <section>
+        <h2>Telegram Einstellungen</h2>
+        <form id="telegramForm">
+          <input type="text" id="thresholdInput" placeholder="20,10">
+          <textarea id="messageTemplate" rows="2" placeholder="Nachricht"></textarea>
+          <button type="submit">Speichern</button>
+        </form>
+        <div id="telegramResult" class="result-box"></div>
+      </section>
     </div>
 
     <!-- TAB ▸ Historie -->
@@ -302,11 +312,30 @@
   document.getElementById('releaseForm').onsubmit=e=>{ e.preventDefault(); releaseKey(document.getElementById('releaseKey').value); };
   document.getElementById('deleteForm').onsubmit=e=>{ e.preventDefault(); deleteKey(document.getElementById('deleteKey').value); };
 
+  // Lädt Schwellenwerte und Nachrichtentext
+  async function loadTelegram(){
+    const r=await fetch('/telegram/settings');
+    const cfg=await r.json();
+    document.getElementById('thresholdInput').value=cfg.thresholds.join(',');
+    document.getElementById('messageTemplate').value=cfg.messageTemplate;
+  }
+
+  // Speichert Änderungen an den Telegram-Einstellungen
+  document.getElementById('telegramForm').onsubmit=async e=>{
+    e.preventDefault();
+    const th=document.getElementById('thresholdInput').value
+      .split(',').map(t=>parseInt(t,10)).filter(n=>!isNaN(n));
+    const msg=document.getElementById('messageTemplate').value;
+    const r=await fetch('/telegram/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({thresholds:th,messageTemplate:msg})});
+    const d=await r.json();
+    displayJson('telegramResult',d);
+  };
+
   /* ----------------- Initial Load ----------------- */
   document.addEventListener('DOMContentLoaded',()=>{
     applyTheme(localStorage.getItem('theme'));
     sidebar.classList.toggle('hidden', window.innerWidth < 850);  /* mobile default-closed */
-    updateStats(); loadFreeList(); loadActiveList(); loadGlobalHistory();
+    updateStats(); loadFreeList(); loadActiveList(); loadGlobalHistory(); loadTelegram();
   });
   </script>
 </body>

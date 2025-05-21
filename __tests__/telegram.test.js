@@ -118,4 +118,26 @@ describe('Telegram Integration', () => {
     delete process.env.TELEGRAM_BOT_TOKEN;
     delete process.env.TELEGRAM_CHAT_ID;
   });
+
+
+  test('Telegram-Nachricht enthält nur die Zahl freier Keys', async () => {
+    process.env.TELEGRAM_BOT_TOKEN = 'T';
+    process.env.TELEGRAM_CHAT_ID = 'C';
+    const spy = jest
+      .spyOn(telegram, 'sendTelegramMessage')
+      .mockResolvedValue({ ok: true });
+
+    const { app } = await createServerWithKeys(18);
+    await new Promise((r) => setImmediate(r));
+    expect(spy).toHaveBeenCalledWith(
+      'T',
+      'C',
+      'Warnung: Nur noch 18 freie Keys. Zum Dashboard: http://localhost:3000/'
+    );
+    await app.close();
+    spy.mockRestore();
+    delete process.env.TELEGRAM_BOT_TOKEN;
+    delete process.env.TELEGRAM_CHAT_ID;
+  });
+
 });

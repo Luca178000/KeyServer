@@ -195,8 +195,11 @@ export TELEGRAM_CHAT_ID="<CHAT_ID>"
 
 Die Warnungen werden nur einmal je Schwelle versendet, um wiederholte Meldungen
 zu vermeiden. Steigt die Zahl freier Keys über zwanzig, beginnt die Zählung von
-neuem. Die Telegram-Nachricht enthält zusätzlich die Gesamtzahl aller Keys und
-einen Link zum Dashboard (`http://localhost:3000/`).
+
+neuem. Die Telegram-Nachricht gibt nur noch die Anzahl der aktuell freien Keys
+an und enthält einen Link zum Dashboard
+(`http://localhost:3000/`).
+
 
 ## Tests
 

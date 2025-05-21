@@ -194,5 +194,52 @@ describe('Dashboard', () => {
     expect(box.children.length).toBeGreaterThan(0);
   });
 
+  test('interaktive Funktionen arbeiten zusammen', async () => {
+    // HTML und Skript laden
+    const html = await fs.readFile(path.join(__dirname, '../public/index.html'), 'utf8');
+    const { JSDOM } = require('../test-utils/fake-dom');
+    const dom = new JSDOM(html, { runScripts: 'dangerously' });
+
+    // ── Theme-Umschaltung ────────────────────────────────────────────────────
+    const applySpy = jest.fn();
+    dom.window.applyTheme = applySpy;
+    const setItemSpy = jest.spyOn(dom.window.localStorage, 'setItem');
+    // Klick auslösen
+    dom.window.document.getElementById('themeToggle').listeners.click();
+    // Nach dem ersten Klick sollte dark aktiviert werden
+    expect(applySpy).toHaveBeenCalledWith('dark');
+    expect(setItemSpy).toHaveBeenCalledWith('theme', 'dark');
+
+    // ── Fallback beim Kopieren ──────────────────────────────────────────────
+    dom.window.navigator.clipboard.writeText = jest.fn().mockRejectedValue(new Error('x'));
+    dom.window.document.execCommand = jest.fn();
+    // textarea-Elemente brauchen im Test eine select-Methode
+    const origCreate = dom.window.document.createElement.bind(dom.window.document);
+    dom.window.document.createElement = (tag) => {
+      const el = origCreate(tag);
+      if (tag === 'textarea') el.select = jest.fn();
+      return el;
+    };
+    dom.window.document.body.removeChild = jest.fn();
+    await dom.window.copyKey('AA');
+    expect(dom.window.document.execCommand).toHaveBeenCalledWith('copy');
+
+    // ── Laden der Telegram-Einstellungen ─────────────────────────────────────
+    dom.window.fetch = jest.fn().mockResolvedValue({
+      json: async () => ({ thresholds: [5, 1], messageTemplate: 'Msg' })
+    });
+    await dom.window.loadTelegram();
+    expect(dom.window.document.getElementById('thresholdInput').value).toBe('5,1');
+    expect(dom.window.document.getElementById('messageTemplate').value).toBe('Msg');
+
+    // ── Sortierung der Listen ───────────────────────────────────────────────
+    const unsorted = [{ id: 5, key: 'A' }, { id: 3, key: 'B' }];
+    dom.window.fetch = jest.fn().mockResolvedValue({ json: async () => unsorted });
+    await dom.window.renderList('listFree', '/dummy');
+    const box = dom.window.document.getElementById('listFree');
+    expect(box.children[0].innerHTML).toContain('3: B');
+    expect(box.children[1].innerHTML).toContain('5: A');
+  });
+
 
 });

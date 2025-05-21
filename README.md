@@ -13,7 +13,7 @@ Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwalte
 
 1. Repository klonen und in das Verzeichnis wechseln:
    ```bash
-   git clone <REPO-URL>
+   git clone https://github.com/Luca178000/KeyServer
    cd KeyServer
    ```
 2. Benötigte Abhängigkeiten installieren:

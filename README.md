@@ -46,6 +46,9 @@ Beim Überfahren der Symbole erscheint ein kurzer Hinweis, der die jeweilige Akt
 Antworten des Servers erscheinen in kleinen Ergebnisboxen direkt unter den Formularen. Beim Abrufen eines freien Keys wird zusätzlich ein Kopieren-Button angeboten.
 
 Zusätzlich gibt es nun in der Statistik einen Zähler für ungültige Keys.
+Ein neuer Tab **Aktivierungen** stellt übersichtlich dar, wie viele Keys pro Tag
+und pro Kalenderwoche benutzt wurden. Diese Daten werden vom Server über den
+Endpunkt `/stats` bereitgestellt und in Tabellenform angezeigt.
 Ebenfalls im Dashboard vorhanden sind Filterfelder für die Gesamtübersicht.
 Mit einer Checkbox lassen sich nur aktuell benutzte Keys anzeigen. Über ein
 Textfeld kann zudem nach dem Wert des Feldes `assignedTo` gefiltert werden.
@@ -122,6 +125,17 @@ Gibt die komplette Historie eines Keys zurück. Die Antwort ist ein Array mit Ei
 
 ### GET `/history`
 Liefert die zusammengefasste Historie aller Keys. Jeder Eintrag enthält den zugehörigen Key sowie Zeitstempel und Aktion. Die Rückgabe ist nach Zeit sortiert.
+
+### GET `/stats`
+Gibt Statistiken über die Anzahl der Aktivierungen pro Tag und pro Kalenderwoche
+zurück. Das Ergebnis ist ein Objekt der Form
+
+```json
+{
+  "perDay": { "2024-01-01": 3 },
+  "perWeek": { "2024-W01": 5 }
+}
+```
 
 ### PUT `/keys/:key/inuse`
 Markiert einen Key als in Benutzung. Der Windows-Key wird in der URL angegeben. Im Request-Body kann ein Feld `assignedTo` übergeben werden, um zu notieren, wer den Key verwendet:

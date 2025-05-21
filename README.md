@@ -211,6 +211,9 @@ export TELEGRAM_BOT_TOKEN="<TOKEN>"
 export TELEGRAM_CHAT_ID="<CHAT_ID>"
 ```
 
+- `SEND_TELEGRAM_DURING_TESTS=true` erlaubt das Verschicken von Nachrichten während Jest-Tests.
+- Standardmäßig werden im Testmodus keine Nachrichten gesendet.
+
 Die Warnungen werden nur einmal je Schwelle versendet, um wiederholte Meldungen
 zu vermeiden. Steigt die Zahl freier Keys über zwanzig, beginnt die Zählung von
 

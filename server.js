@@ -112,12 +112,14 @@ async function buildServer(options = {}) {
   });
 
   app.get('/keys/free', async (request, reply) => {
-    // Suche nach dem ersten freien und zugleich nicht als ungültig markierten Key
+    // Suche nach dem ersten freien und nicht ungültigen Key
     const freeKey = keys.find((k) => !k.inUse && !k.invalid);
     if (!freeKey) {
       reply.code(404);
       return { error: 'Kein verfügbarer Key gefunden' };
     }
+
+    // Abruf in der Historie festhalten
     if (!freeKey.history) freeKey.history = [];
     const logEntry = {
       action: 'free',
@@ -126,7 +128,10 @@ async function buildServer(options = {}) {
     };
     freeKey.history.push(logEntry);
     await saveData();
-    return freeKey;
+
+    // Nur den Key-String zurückgeben
+    reply.type('text/plain');
+    return freeKey.key;
   });
 
   // Gibt eine Liste aller aktuell freien Keys zurück

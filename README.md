@@ -120,6 +120,9 @@ Liefert alle Keys, die aktuell in Benutzung sind (`inUse=true`). Auch hier wird 
 ### GET `/keys/:key/history`
 Gibt die komplette Historie eines Keys zurück. Die Antwort ist ein Array mit Einträgen der Form `{ action, timestamp, assignedTo }`. Ist der Key unbekannt, antwortet der Server mit Statuscode `404`.
 
+### GET `/history`
+Liefert die zusammengefasste Historie aller Keys. Jeder Eintrag enthält den zugehörigen Key sowie Zeitstempel und Aktion. Die Rückgabe ist nach Zeit sortiert.
+
 ### PUT `/keys/:key/inuse`
 Markiert einen Key als in Benutzung. Der Windows-Key wird in der URL angegeben. Im Request-Body kann ein Feld `assignedTo` übergeben werden, um zu notieren, wer den Key verwendet:
 ```json

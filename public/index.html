@@ -114,6 +114,12 @@
         <button id="applyUpdates">Installieren</button>
         <div id="updateResult" class="result-box"></div>
       </section>
+
+      <section>
+        <h2>Tests</h2>
+        <button id="runTests">Ausführen</button>
+        <div id="testResult" class="result-box"></div>
+      </section>
     </div>
 
     <!-- TAB ▸ Historie -->
@@ -370,6 +376,13 @@
     displayJson('updateResult',d);
   }
 
+  // Startet die Tests des Servers und zeigt die Ausgabe an
+  async function runTests(){
+    const r=await fetch('/tests/run',{method:'POST'});
+    const d=await r.json();
+    displayJson('testResult',d);
+  }
+
 
   /* ----------------- Form Events ----------------- */
   document.getElementById('addKeyForm').onsubmit=async e=>{
@@ -395,6 +408,7 @@
   document.getElementById('deleteForm').onsubmit=e=>{ e.preventDefault(); deleteKey(document.getElementById('deleteKey').value); };
   document.getElementById('checkUpdates').onclick=checkUpdates;
   document.getElementById('applyUpdates').onclick=runUpdates;
+  document.getElementById('runTests').onclick=runTests;
 
   // Lädt Schwellenwerte und Nachrichtentext
   async function loadTelegram(){

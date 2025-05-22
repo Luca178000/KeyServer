@@ -38,4 +38,17 @@ async function applyUpdates() {
   return result;
 }
 
-module.exports = { getAvailableUpdates, applyUpdates };
+/**
+ * Startet ausschließlich die Tests ohne einen vorherigen Git-Pull.
+ * Die Konsolenausgabe von "npm test" wird als Ergebnis geliefert.
+ */
+async function runTests() {
+  try {
+    const { stdout } = await execAsync('npm test --silent');
+    return { test: stdout.trim() };
+  } catch (err) {
+    return { test: (err.stdout || err.message || '').trim() };
+  }
+}
+
+module.exports = { getAvailableUpdates, applyUpdates, runTests };

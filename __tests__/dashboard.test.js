@@ -63,6 +63,12 @@ describe('Dashboard', () => {
     expect(res.payload).toContain('id="applyUpdates"');
   });
 
+  test('zeigt Test-Button', async () => {
+    const { app } = await createServer();
+    const res = await app.inject('/');
+    expect(res.payload).toContain('id="runTests"');
+  });
+
   test('createActionButton setzt optionalen Titel', async () => {
     const { app } = await createServer();
     const res = await app.inject('/');

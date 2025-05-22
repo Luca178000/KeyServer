@@ -4,7 +4,8 @@ const fs = require('fs/promises');
 
 jest.mock('../update', () => ({
   getAvailableUpdates: jest.fn(async () => ['fix bug', 'add feature']),
-  applyUpdates: jest.fn(async () => ({ pull: 'ok', test: 'passed' }))
+  applyUpdates: jest.fn(async () => ({ pull: 'ok', test: 'passed' })),
+  runTests: jest.fn(async () => ({ test: 'passed' }))
 }));
 
 const buildServer = require('../server');
@@ -37,6 +38,16 @@ describe('Update Endpunkte', () => {
     expect(obj.pull).toBe('ok');
     expect(obj.test).toBe('passed');
     expect(update.applyUpdates).toHaveBeenCalled();
+    await app.close();
+  });
+
+  test('POST /tests/run ruft runTests auf', async () => {
+    const { app } = await createServer();
+    const res = await app.inject({ method: 'POST', url: '/tests/run' });
+    expect(res.statusCode).toBe(200);
+    const obj = JSON.parse(res.payload);
+    expect(obj.test).toBe('passed');
+    expect(update.runTests).toHaveBeenCalled();
     await app.close();
   });
 });

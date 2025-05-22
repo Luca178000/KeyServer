@@ -256,6 +256,18 @@ PUT-Variante erwartet ein JSON-Objekt mit den Feldern `thresholds` (Array von
 Zahlen) und `messageTemplate`. In letzterem wird die Platzhaltervariable
 `{free}` durch die aktuelle Zahl freier Keys ersetzt.
 
+### Updates verwalten
+
+Um den Server bequem \xdcb das Dashboard aktualisieren zu k\xf6nnen, gibt es zwei
+zus\xe4tzliche Endpunkte:
+
+- **GET `/updates`** pr\xfcft \xfcber `git fetch`, ob auf `origin/main` neue
+  Commits vorliegen und gibt diese als Liste zur\xfcck.
+- **POST `/updates/apply`** f\xfchrt `git pull` sowie anschlie\xdfend
+  `npm test` aus und liefert die Konsolenausgaben beider Befehle als JSON.
+
+Im Dashboard k\xf6nnen so Updates angezeigt und per Klick installiert werden.
+
 
 ## Tests
 

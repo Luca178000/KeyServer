@@ -56,6 +56,13 @@ describe('Dashboard', () => {
     expect(res.payload).toContain('icon-button');
   });
 
+  test('beinhaltet Update-Buttons', async () => {
+    const { app } = await createServer();
+    const res = await app.inject('/');
+    expect(res.payload).toContain('id="checkUpdates"');
+    expect(res.payload).toContain('id="applyUpdates"');
+  });
+
   test('createActionButton setzt optionalen Titel', async () => {
     const { app } = await createServer();
     const res = await app.inject('/');

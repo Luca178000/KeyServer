@@ -107,6 +107,13 @@
         </form>
         <div id="telegramResult" class="result-box"></div>
       </section>
+
+      <section>
+        <h2>Updates</h2>
+        <button id="checkUpdates">Prüfen</button>
+        <button id="applyUpdates">Installieren</button>
+        <div id="updateResult" class="result-box"></div>
+      </section>
     </div>
 
     <!-- TAB ▸ Historie -->
@@ -349,6 +356,20 @@
     renderHistory(h);
   }
 
+  // Pr\u00fcft, ob Updates verf\u00fcgbar sind
+  async function checkUpdates(){
+    const r=await fetch('/updates');
+    const d=await r.json();
+    displayJson('updateResult',d);
+  }
+
+  // Installiert Updates und f\u00fchrt Tests aus
+  async function runUpdates(){
+    const r=await fetch('/updates/apply',{method:'POST'});
+    const d=await r.json();
+    displayJson('updateResult',d);
+  }
+
 
   /* ----------------- Form Events ----------------- */
   document.getElementById('addKeyForm').onsubmit=async e=>{
@@ -372,6 +393,8 @@
 
   document.getElementById('releaseForm').onsubmit=e=>{ e.preventDefault(); releaseKey(document.getElementById('releaseKey').value); };
   document.getElementById('deleteForm').onsubmit=e=>{ e.preventDefault(); deleteKey(document.getElementById('deleteKey').value); };
+  document.getElementById('checkUpdates').onclick=checkUpdates;
+  document.getElementById('applyUpdates').onclick=runUpdates;
 
   // Lädt Schwellenwerte und Nachrichtentext
   async function loadTelegram(){

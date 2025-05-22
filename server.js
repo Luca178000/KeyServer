@@ -414,6 +414,19 @@ async function buildServer(options = {}) {
     return telegramConfig;
   });
 
+  // ----- Update-Handling -----
+  // Listet alle verf\u00fcgbaren Commits auf, die noch nicht eingespielt sind
+  app.get('/updates', async () => {
+    const updates = await require('./update').getAvailableUpdates();
+    return { updates };
+  });
+
+  // Startet einen Pull sowie anschlie\u00dfend npm test
+  app.post('/updates/apply', async () => {
+    const result = await require('./update').applyUpdates();
+    return result;
+  });
+
   return app;
 }
 

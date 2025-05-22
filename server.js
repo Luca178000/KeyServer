@@ -427,6 +427,12 @@ async function buildServer(options = {}) {
     return result;
   });
 
+  // Führt die im Projekt hinterlegten Tests aus
+  app.post('/tests/run', async () => {
+    const result = await require('./update').runTests();
+    return result;
+  });
+
   return app;
 }
 

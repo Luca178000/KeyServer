@@ -268,6 +268,17 @@ zus\xe4tzliche Endpunkte:
 
 Im Dashboard k\xf6nnen so Updates angezeigt und per Klick installiert werden.
 
+### Servertests ausf\xfchren
+
+Neben den Update-Funktionen gibt es einen weiteren Endpunkt, um direkt \xfcber
+das Dashboard die Tests zu starten:
+
+- **POST `/tests/run`** startet `npm test` und liefert die Konsolenausgabe als
+  JSON-Objekt zur\xfcck.
+
+Im Dashboard findet sich dazu ein eigener Button "Ausf\xfchren" im Abschnitt
+**Tests**, der das Ergebnis anzeigt.
+
 
 ## Tests
 

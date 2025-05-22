@@ -119,6 +119,18 @@ Bereits vorhandene Keys werden dabei ignoriert und nicht erneut gespeichert. Fü
 Gibt den ersten verfügbaren Key als reinen Text zurück (Muster `XXXXX-XXXXX-...`).
 Der Antworttyp ist `text/plain`. Ist kein Key frei, lautet der Statuscode `404`.
 
+#### Abruf per Batch-Datei
+Das folgende Beispiel zeigt, wie ein freier Key in einer Windows-Batch-Datei
+angefordert werden kann:
+
+```batch
+@echo off
+for /f "delims=" %%K in ('curl -s http://localhost:3000/keys/free') do (
+  set FREE_KEY=%%K
+)
+echo Gefundener Key: %FREE_KEY%
+```
+
 ### GET `/keys/free/list`
 Gibt eine komplette Liste aller momentan freien Keys zurück. Die Antwort ist ein Array der entsprechenden Key-Objekte.
 

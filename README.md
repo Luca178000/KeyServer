@@ -4,7 +4,7 @@ Ein einfacher Fastify-Server, der Windows-Keys in einer In-Memory-Liste verwalte
 
 ## Projektstruktur
 
-- `index.js` – Startpunkt des Servers.
+- `index.js` – Startpunkt des Servers
 - `server.js` – Hauptlogik und REST-Endpunkte.
 - `public/` – Dashboard (HTML, CSS, JS).
 - `__tests__/` – Jest-Tests.
